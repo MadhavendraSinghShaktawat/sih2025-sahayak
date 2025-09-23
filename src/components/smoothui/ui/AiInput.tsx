@@ -3,6 +3,7 @@
 import React from "react"
 import { cx } from "class-variance-authority"
 import { AnimatePresence, motion } from "motion/react"
+import { cn } from "@/lib/utils/cn"
 
 import { Button } from "@/components/ui/button"
 import { useClickOutside } from "@/hooks/use-click-outside"
@@ -20,7 +21,15 @@ interface FooterContext {
 const FooterContext = React.createContext({} as FooterContext)
 const useFooter = () => React.useContext(FooterContext)
 
-export function MorphSurface() {
+interface MorphSurfaceProps {
+  onInputChange?: (value: string, cursorPos: number) => void
+  onKeyDown?: (e: React.KeyboardEvent<HTMLTextAreaElement>) => void
+  value?: string
+  textareaRef?: React.RefObject<HTMLTextAreaElement | null>
+  isValidCommand?: boolean
+}
+
+export function MorphSurface({ onInputChange, onKeyDown: onKeyDownProp, value, textareaRef, isValidCommand }: MorphSurfaceProps = {}) {
   const rootRef = React.useRef<HTMLDivElement>(null)
 
   const feedbackRef = React.useRef<HTMLTextAreaElement | null>(null)
@@ -89,7 +98,15 @@ export function MorphSurface() {
       >
         <FooterContext.Provider value={context}>
           <Dock />
-          <Feedback ref={feedbackRef} onSuccess={onFeedbackSuccess} />
+          <Feedback 
+          ref={feedbackRef} 
+          onSuccess={onFeedbackSuccess}
+          onInputChange={onInputChange}
+          onKeyDown={onKeyDownProp}
+          value={value}
+          textareaRef={textareaRef}
+          isValidCommand={isValidCommand}
+        />
         </FooterContext.Provider>
       </motion.div>
     </div>
@@ -149,12 +166,25 @@ const FEEDBACK_HEIGHT = 200
 function Feedback({
   ref,
   onSuccess,
+  onInputChange,
+  onKeyDown: onKeyDownProp,
+  value,
+  textareaRef,
+  isValidCommand,
 }: {
   ref: React.Ref<HTMLTextAreaElement>
   onSuccess: () => void
+  onInputChange?: (value: string, cursorPos: number) => void
+  onKeyDown?: (e: React.KeyboardEvent<HTMLTextAreaElement>) => void
+  value?: string
+  textareaRef?: React.RefObject<HTMLTextAreaElement | null>
+  isValidCommand?: boolean
 }) {
   const { closeFeedback, showFeedback } = useFooter()
   const submitRef = React.useRef<HTMLButtonElement>(null)
+  
+  // Debug: console.log('Feedback component isValidCommand:', isValidCommand)
+  
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -162,6 +192,9 @@ function Feedback({
   }
 
   function onKeyDown(e: React.KeyboardEvent<HTMLTextAreaElement>) {
+    // Call the prop handler first
+    onKeyDownProp?.(e)
+    
     if (e.key === "Escape") {
       closeFeedback()
     }
@@ -169,6 +202,12 @@ function Feedback({
       e.preventDefault()
       submitRef.current?.click()
     }
+  }
+
+  function handleInputChange(e: React.ChangeEvent<HTMLTextAreaElement>) {
+    const textarea = e.target
+    const cursorPos = textarea.selectionStart
+    onInputChange?.(e.target.value, cursorPos)
   }
 
   return (
@@ -209,12 +248,21 @@ function Feedback({
               </button>
             </div>
             <textarea
-              ref={ref}
+              ref={textareaRef || ref}
               placeholder="Ask me anything..."
               name="message"
-              className="bg-white h-full w-full resize-none scroll-py-2 rounded-md p-4 outline-0"
+              className={cn(
+                "bg-white h-full w-full resize-none scroll-py-2 rounded-md p-4 outline-0 transition-colors",
+                isValidCommand && "text-blue-600"
+              )}
+              style={{ 
+                color: isValidCommand ? '#2563eb' : 'inherit',
+                fontWeight: isValidCommand ? '600' : 'normal'
+              }}
               required
               onKeyDown={onKeyDown}
+              onChange={handleInputChange}
+              value={value}
               spellCheck={false}
             />
           </motion.div>
