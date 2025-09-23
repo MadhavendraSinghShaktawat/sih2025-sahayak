@@ -2,6 +2,7 @@
 
 import * as React from "react"
 import { supabase } from "@/lib/supabaseClient"
+import { retry } from "@/lib/retry"
 import {
   Conversation,
   ConversationContent,
@@ -37,39 +38,189 @@ export function ChatRoom({
 }) {
   const [messages, setMessages] = React.useState<ChatMessage[]>([])
   const [input, setInput] = React.useState("")
+  const [loading, setLoading] = React.useState(true)
   const channelRef = React.useRef<ReturnType<typeof supabase.channel> | null>(null)
   const [displayName, setDisplayName] = React.useState(name ?? "")
+  const messagesEndRef = React.useRef<HTMLDivElement>(null)
+
+  // Auto-scroll to bottom when messages change
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
+  }
 
   React.useEffect(() => {
+    scrollToBottom()
+  }, [messages])
+
+  // Load initial messages and set up real-time
+  React.useEffect(() => {
     if (!roomId) return
-    const channel = supabase.channel(`presence:room:${roomId}`)
+
+    async function loadMessages() {
+      try {
+        setLoading(true)
+        const data = await retry(async () => {
+          const result = await supabase
+            .from("messages")
+            .select("id, text, name, role, created_at")
+            .eq("room_id", roomId)
+            .order("created_at", { ascending: true })
+            .limit(50)
+          if (result.error) throw result.error
+          return result.data
+        })
+
+        // Convert database messages to ChatMessage format
+        const dbMessages: ChatMessage[] = (data || []).map((msg: any) => ({
+          id: msg.id,
+          text: msg.text,
+          name: msg.name,
+          role: msg.role as "teacher" | "student",
+        }))
+
+        setMessages(dbMessages)
+      } catch (err) {
+        console.error("Failed to load messages:", err)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    loadMessages()
+
+    // Set up real-time channel for new messages
+    const channel = supabase.channel(`room:${roomId}`)
     channelRef.current = channel
+
+    // Listen for new messages via postgres_changes
     channel
-      .on("broadcast", { event: "chat" }, (payload) => {
-        const msg = payload.payload as ChatMessage
-        setMessages((prev) => [...prev, msg])
+      .on(
+        "postgres_changes",
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "messages",
+          filter: `room_id=eq.${roomId}`,
+        },
+        (payload) => {
+          console.log("Real-time message received:", payload)
+          const newMsg = payload.new as any
+          const chatMsg: ChatMessage = {
+            id: newMsg.id,
+            text: newMsg.text,
+            name: newMsg.name,
+            role: newMsg.role as "teacher" | "student",
+          }
+          setMessages((prev) => {
+            // Avoid duplicates by checking if message already exists
+            const exists = prev.some(msg => msg.id === chatMsg.id)
+            if (exists) return prev
+            return [...prev, chatMsg]
+          })
+        }
+      )
+      .subscribe((status) => {
+        console.log("Real-time subscription status:", status)
       })
-      .subscribe()
+
     return () => {
       channelRef.current = null
       supabase.removeChannel(channel)
     }
   }, [roomId])
 
-  function sendMessage() {
+  // Fallback: Refresh messages every 3 seconds if real-time fails
+  React.useEffect(() => {
+    if (!roomId || loading) return
+    
+    const interval = setInterval(async () => {
+      try {
+        const data = await supabase
+          .from("messages")
+          .select("id, text, name, role, created_at")
+          .eq("room_id", roomId)
+          .order("created_at", { ascending: true })
+          .limit(50)
+        
+        if (data.data) {
+          const dbMessages: ChatMessage[] = data.data.map((msg: any) => ({
+            id: msg.id,
+            text: msg.text,
+            name: msg.name,
+            role: msg.role as "teacher" | "student",
+          }))
+          
+          setMessages(prev => {
+            // Only update if we have new messages
+            if (dbMessages.length > prev.length) {
+              console.log("Fallback: Found new messages via polling")
+              return dbMessages
+            }
+            return prev
+          })
+        }
+      } catch (err) {
+        console.error("Fallback polling failed:", err)
+      }
+    }, 3000)
+
+    return () => clearInterval(interval)
+  }, [roomId, loading])
+
+  async function sendMessage() {
     const text = input.trim()
     if (!text) return
     const who = displayName || (role === "teacher" ? "Teacher" : "Student")
-    const msg: ChatMessage = {
-      id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
-      text,
-      name: who,
-      avatar,
-      role,
+
+    try {
+      // Get current user for sender_id
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) {
+        console.error("User not authenticated")
+        return
+      }
+
+      // Generate a stable client id in case RLS prevents returning rows
+      const messageId =
+        (typeof globalThis !== "undefined" && (globalThis as any).crypto &&
+          typeof (globalThis as any).crypto.randomUUID === "function" &&
+          (globalThis as any).crypto.randomUUID()) ||
+        `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`
+
+      // Insert message to database
+      await retry(async () => {
+        const result = await supabase
+          .from("messages")
+          .insert({
+            id: messageId,
+            room_id: roomId,
+            sender_id: user.id,
+            name: who,
+            role: role,
+            text: text,
+          })
+        if (result.error) {
+          console.error("Failed to insert message:", result.error)
+          throw result.error
+        }
+        console.log("Message inserted successfully:", { messageId, roomId, text })
+        return true
+      })
+
+      // Optimistically add to local state (will be confirmed by real-time update)
+      const msg: ChatMessage = {
+        id: messageId,
+        text,
+        name: who,
+        avatar,
+        role,
+      }
+      setMessages((prev) => [...prev, msg])
+      setInput("")
+    } catch (err) {
+      console.error("Failed to send message:", err)
+      // Could add toast notification here
     }
-    channelRef.current?.send({ type: "broadcast", event: "chat", payload: msg })
-    setMessages((prev) => [...prev, msg])
-    setInput("")
   }
 
   function onKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
@@ -128,7 +279,14 @@ export function ChatRoom({
       <div className="flex-1 bg-gray-50 min-h-0">
         <Conversation className="relative h-full">
           <ConversationContent className="p-4 h-full">
-            {messages.length === 0 ? (
+            {loading ? (
+              <div className="flex items-center justify-center h-full text-gray-500">
+                <div className="text-center">
+                  <div className="text-4xl mb-2">⏳</div>
+                  <p>Loading messages...</p>
+                </div>
+              </div>
+            ) : messages.length === 0 ? (
               <div className="flex items-center justify-center h-full text-gray-500">
                 <div className="text-center">
                   <div className="text-4xl mb-2">💬</div>
@@ -137,12 +295,15 @@ export function ChatRoom({
                 </div>
               </div>
             ) : (
-              messages.map((m) => (
-                <Message key={m.id} from={m.role === "teacher" ? "user" : "assistant"}>
-                  <MessageContent className="text-gray-800">{m.text}</MessageContent>
-                  <MessageAvatar name={m.name} src={m.avatar || ""} />
-                </Message>
-              ))
+              <>
+                {messages.map((m) => (
+                  <Message key={m.id} from={m.role === "teacher" ? "user" : "assistant"}>
+                    <MessageContent className="text-gray-800">{m.text}</MessageContent>
+                    <MessageAvatar name={m.name} src={m.avatar || ""} />
+                  </Message>
+                ))}
+                <div ref={messagesEndRef} />
+              </>
             )}
           </ConversationContent>
           <ConversationScrollButton />

@@ -71,7 +71,7 @@ export function MorphSurface() {
         data-footer
         ref={rootRef}
         className={cx(
-          "bg-background relative bottom-8 z-3 flex flex-col items-center overflow-hidden border max-sm:bottom-5"
+          "bg-white relative bottom-8 z-3 flex flex-col items-center overflow-hidden border max-sm:bottom-5"
         )}
         initial={false}
         animate={{
@@ -212,7 +212,7 @@ function Feedback({
               ref={ref}
               placeholder="Ask me anything..."
               name="message"
-              className="bg-primary h-full w-full resize-none scroll-py-2 rounded-md p-4 outline-0"
+              className="bg-white h-full w-full resize-none scroll-py-2 rounded-md p-4 outline-0"
               required
               onKeyDown={onKeyDown}
               spellCheck={false}
@@ -258,7 +258,7 @@ function Kbd({
   return (
     <kbd
       className={cx(
-        "bg-primary text-foreground flex h-6 w-fit items-center justify-center rounded-sm border px-[6px] font-sans",
+        "bg-gray-100 text-gray-800 flex h-6 w-fit items-center justify-center rounded-sm border border-gray-300 px-[6px] font-sans",
         className
       )}
     >

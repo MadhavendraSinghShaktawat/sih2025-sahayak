@@ -6,6 +6,7 @@ import { supabase } from "@/lib/supabaseClient"
 import ChatRoom from "@/components/ui/shadcn-io/ai/ChatRoom"
 import BasicToast from "@/components/smoothui/ui/BasicToast"
 import { AnimatePresence, motion } from "motion/react"
+import AiInputDemo from "@/components/smoothui/examples/AiInputDemo"
 
 export default function RoomPage() {
   const params = useParams<{ id: string }>()
@@ -38,41 +39,44 @@ export default function RoomPage() {
   React.useEffect(() => {
     if (!roomId) return
 
-    const presenceKey =
-      (typeof globalThis !== "undefined" && (globalThis as any).crypto &&
-        typeof (globalThis as any).crypto.randomUUID === "function" &&
-        (globalThis as any).crypto.randomUUID()) ||
-      `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`
+    async function setupPresence() {
+      const { data: auth } = await supabase.auth.getUser()
+      const uid = auth.user?.id
+      const presenceKey = uid || `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`
 
-    const channel = supabase.channel(`presence:room:${roomId}`, {
-      config: {
-        presence: { key: presenceKey },
-      },
-    })
-    presenceRef.current = channel
+      const channel = supabase.channel(`presence:room:${roomId}`, {
+        config: {
+          presence: { key: presenceKey },
+        },
+      })
+      presenceRef.current = channel
 
-    channel
-      .on("presence", { event: "sync" }, () => {
-        const state = channel.presenceState()
-        const count = Object.values(state).reduce((acc, arr) => acc + (arr as any[]).length, 0)
-        setOnlineCount(Math.max(1, count))
-      })
-      .on("broadcast", { event: "end" }, () => {
-        setShowToast(true)
-        setTimeout(() => {
-          setShowToast(false)
-          router.push("/student")
-        }, 1200)
-      })
-      .subscribe(async (status) => {
-        if (status === "SUBSCRIBED") {
-          await channel.track({ joined_at: Date.now() })
-        }
-      })
+      channel
+        .on("presence", { event: "sync" }, () => {
+          const state = channel.presenceState()
+          // unique keys represent unique users
+          const count = Object.keys(state).length
+          setOnlineCount(Math.max(1, count))
+        })
+        .on("broadcast", { event: "end" }, () => {
+          setShowToast(true)
+          setTimeout(() => {
+            setShowToast(false)
+            router.push("/student")
+          }, 1200)
+        })
+        .subscribe(async (status) => {
+          if (status === "SUBSCRIBED") {
+            await channel.track({ joined_at: Date.now() })
+          }
+        })
+    }
+
+    setupPresence()
 
     return () => {
+      if (presenceRef.current) supabase.removeChannel(presenceRef.current)
       presenceRef.current = null
-      supabase.removeChannel(channel)
     }
   }, [roomId])
 

@@ -1,0 +1,44 @@
+Sahayak - Execution Plan (Online-first → Low-connectivity)
+
+Phase 0: Auth & Roles (Online-first)
+- Supabase Auth (Email/Password)
+- Disable self-service signup; teacher Invite-only (admin API or Edge Function)
+- profiles table: id (uuid refs auth.users), role (teacher|student), teacher_id, name, created_at
+- On signup/login: ensure profiles row exists
+- Gate teacher features by role
+
+Phase 1: Core Realtime Chat (Online-first)
+- Room creation by teacher (already done) → created_by = auth.uid
+- Student join via OTP (already done)
+- Chat broadcast via Supabase Realtime (done) with message model (optional persistence later)
+- Presence count + end-session broadcast (done)
+
+Phase 2: Stability & UX (Online-first)
+- Error toasts + retry buttons for create/join/send
+- Backoff & small timeouts for Supabase calls
+- Minimal telemetry: console logs for errors
+
+Phase 3: PWA Shell (Enable later today)
+- Add manifest.webmanifest (name, icons, theme)
+- Add next-pwa (Workbox) for basic precache of app shell and static assets
+- Verify installable + offline landing opens
+
+Phase 4: Low-Connectivity Enhancements (Tomorrow AM)
+- Connectivity banner: online/offline/weak (navigator.onLine + effectiveType)
+- Message queue (in-memory) → queued/sent/failed badges; flush on reconnect
+- Realtime fallback to polling (3–5s) when WS drops; restore WS when healthy
+
+Phase 5: Persistence (Nice-to-have if time)
+- Switch queue to IndexedDB (idb) to survive refresh/offline restarts
+- Cache key GETs with runtime caching (stale-while-revalidate)
+
+Phase 6: Low-bandwidth Mode (Optional)
+- Toggle to reduce animations/images; text-first UI
+
+Deliverables for SIH demo
+- Teacher invites student; student signs up; roles applied
+- App opens fast; chat works online; session persists across reloads
+- With flaky network: banner visible; messages queue and auto-send on reconnect; presence/chat continues via polling fallback
+
+Tech Stack
+- Next.js 15 (App Router), Supabase JS/Auth, next-pwa (Workbox), idb (later), Network Information API
