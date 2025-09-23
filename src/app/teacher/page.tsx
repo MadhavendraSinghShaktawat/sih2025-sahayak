@@ -49,6 +49,25 @@ export default function TeacherPage() {
     }
   }
 
+  async function onEndSession() {
+    if (!roomId) return
+    if (!hasSupabaseEnv) {
+      console.error("Supabase env missing. Set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY.")
+      return
+    }
+    const ok = window.confirm("End session and delete this room?")
+    if (!ok) return
+    try {
+      const { error } = await supabase.from("rooms").delete().eq("id", roomId)
+      if (error) throw new Error(`Supabase error deleting room: ${error.message}`)
+      setRoomId(null)
+      setPasscode(null)
+      setQr(null)
+    } catch (err: any) {
+      console.error(err?.message ?? err)
+    }
+  }
+
   return (
     <div className="p-6 space-y-4">
       <h1>Teacher</h1>
@@ -75,6 +94,9 @@ export default function TeacherPage() {
           )}
           <button className="border px-2 py-1" onClick={() => router.push(`/room/${roomId}`)}>
             Go to Room
+          </button>
+          <button className="border px-2 py-1" onClick={onEndSession}>
+            End Session
           </button>
         </div>
       )}
