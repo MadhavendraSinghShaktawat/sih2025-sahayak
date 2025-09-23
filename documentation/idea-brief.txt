@@ -1,0 +1,142 @@
+Title: Sahayak – Offline-First Classroom Learning for Rural Schools (Nabha)
+
+1) Problem & Impact
+- Many government schools in Nabha lack updated computers, reliable internet, and quality digital content.
+- Teachers struggle to use outdated systems; students have low digital exposure.
+- Result: widening rural–urban learning gap and lower employability.
+
+2) Our Solution (What We’re Building Now)
+- A mobile/web app that works without internet and runs on low-end devices.
+- Local Hotspot Class Mode: the teacher’s device becomes a local host; students join via QR/code—no internet required.
+- Interactive bilingual micro-lessons (Punjabi/English) with quick checkpoints.
+- Live class quizzes/polls with instant feedback and teacher tally + CSV export.
+- Lightweight RBAC: teacher (PIN-protected actions), student (name only).
+
+3) Why This Will Win (Judging Alignment)
+- Offline-first: PWA caching + local hotspot server meets poor-connectivity reality.
+- Local language: Punjabi-first content with an English toggle improves comprehension.
+- Interactivity: frequent micro-checkpoints drive engagement and retention.
+- Teacher-centric: preview/edit, instant tally, CSV export build trust and utility.
+- Low-end optimization: text-first, tiny images, no heavy downloads or cloud dependence.
+
+4) MVP Scope (Deliverable in 2 Days)
+- Local Hotspot Class Mode
+  - Teacher creates a session → shows QR/code.
+  - Students join the same hotspot → answer five MCQs.
+  - Students see instant correctness + one-line explanation.
+  - Teacher sees live tally and can export CSV.
+- Interactive Micro-Lessons (Bilingual)
+  - 1–2 lessons per subject (6–10 cards each).
+  - Card types: explain, MCQ/True-False, match pairs, hinted answer.
+  - Punjabi/English toggle on every card; progress saved locally.
+- RBAC (Lightweight)
+  - Roles: teacher (PIN), student (name).
+  - Teacher can trigger a poll from any lesson checkpoint.
+
+5) Architecture Overview (Simple & Robust)
+- App Shell: Next.js PWA. Offline routes for lessons and student view.
+- Local Realtime: Node WebSocket server on teacher device (rooms, in-memory state).
+- Join Flow: QR encodes local URL (http/ws) + session code. Works without internet.
+- Storage: Client localStorage/IndexedDB for progress; server memory for session data.
+- Content: Bilingual lesson packs (JSON + small WebP images), pre-bundled and cacheable.
+
+6) Event Contract (Minimal)
+- Student → Server
+  - join { sessionId, name }
+  - answer { sessionId, qid, choice }
+- Server → Student
+  - question { qid, text, options }
+  - result { qid, correct, explanation }
+- Teacher → Server
+  - startQuiz { sessionId, questions[] }
+  - broadcastQuestion { qid }
+  - endQuiz { sessionId }
+- Server → Teacher
+  - joined { name }
+  - tally { qid, countsByOption }
+
+7) Lesson Pack Schema (Authoring-Friendly)
+- lesson.json
+  - metadata: { title, grade, subject, board, durationMinutes }
+  - cards: [
+      { type: "explain", text: { pa, en }, image?: "images/..", audio?: "audio/.." },
+      { type: "question_mcq", stem: { pa, en }, options: [{ pa, en }...], correctIndex, why: { pa, en } },
+      { type: "true_false", statement: { pa, en }, correct: true|false, why: { pa, en } },
+      { type: "match_pairs", pairs: [{ left: { pa, en }, right: { pa, en } } ...] },
+      { type: "hinted", prompt: { pa, en }, hints: [{ pa, en } ...], answer: { pa, en } }
+    ]
+- Assets: images/ (WebP <100 KB each), audio/ (optional, short MP3 lines).
+- Size budget: each lesson pack < 3–5 MB.
+
+8) Day-by-Day Timeline (Hour-Level)
+- Day 1
+  0–2h: App shell (PWA), routes (Teacher, Student, Lesson), offline cache.
+  2–5h: WebSocket server (rooms, join, broadcast, answer, tally; in-memory state).
+  5–7h: Teacher flow (/quiz, preview, start, broadcast, show QR + code).
+  7–9h: Student flow (join, answer, instant result; basic reconnect).
+  9–10h: Local IP detection + QR payload (http/ws URL + session code).
+- Day 2
+  0–2h: Lesson runner (cards + bilingual toggle + local progress).
+  2–3h: "Poll this card" → broadcast the current checkpoint question.
+  3–4h: CSV export, duplicate-answer guard, sequence numbers.
+  4–6h: Seed 2 lessons (Punjabi + English, human-reviewed).
+  6–8h: Field test on hotspot (5–10 devices), firewall, QR scan UX.
+  8–10h: Demo polish (big fonts, error banners, loading states).
+
+9) Demo Script (Stick to This)
+1. Start teacher hotspot. Open the app (offline-ready). Create a session.
+2. Show QR + 6-character code. 5–10 volunteers join; names appear.
+3. Open a Punjabi lesson; switch to English to show bilingual.
+4. Tap "Poll this card" (a checkpoint) → live question broadcast.
+5. Students answer; each sees instant correctness + short explanation.
+6. Teacher shows live tally and exports CSV.
+7. Turn off internet to prove local mode; run one more question smoothly.
+8. Briefly disconnect one phone, reconnect, answer still recorded (idempotent).
+
+10) Acceptance Criteria (Readiness Checklist)
+- Joining: 10 devices join within 60 seconds via QR/code.
+- Latency: question broadcast reaches all students in < 1.5 seconds.
+- Reliability: answers deduplicated; reconnect does not lose state.
+- Lessons: load and run fully offline; language toggle is instant.
+- Export: CSV opens cleanly in Excel with names, qids, answers, correctness.
+
+11) Risks & Mitigations
+- Windows/macOS firewall blocking inbound: pre-authorize the server binary; provide quick how-to; have Android hotspot backup.
+- Hotspot IP varies by device: auto-detect local IP; show both URL and manual code.
+- Client isolation on some OEM hotspots: central host model still works; bring a travel router as fallback.
+- Low-end device performance: text-first UI, no heavy animations; pre-cache assets.
+- Time squeeze: if lesson runner slips, ship one bilingual lesson + strong quiz flow first.
+
+12) Differentiators (vs. DIKSHA/Khan/others)
+- Offline realtime class interaction (polls/quiz) without internet.
+- Punjabi-first micro-lessons with instant bilingual toggle.
+- Teacher trust: preview/edit, explanations, CSV for records.
+- Designed for low-end phones; zero-install PWA.
+
+13) Immediate Content Targets (Pilot)
+- Math (Grade 6–8): Fractions (6–8 cards + 3 recap Qs).
+- Science (Grade 6–8): States of Matter (6–8 cards + 3 recap Qs).
+- Digital Literacy: Safe Browser Basics (6–8 cards + 3 recap Qs).
+
+14) Engagement Mechanics (Simple, Offline)
+- Micro-streaks for correct answers; reset on wrong with clear "why".
+- Visual progress bar; "practice wrong cards" mode.
+- No distracting animations; keep interactions snappy.
+
+15) Roles & Responsibilities (for Team Execution)
+- Lead Dev: local server, events, reconnect, CSV.
+- Frontend: lesson runner UI, student join/answer, bilingual toggle.
+- Content: draft English cards → Punjabi translation → teacher review.
+- QA/Demo: hotspot testing across devices, firewall setup, demo runbook.
+
+16) Roadmap After SIH (Next 4–8 Weeks)
+- Fully-offline LAN mode (teacher device as local signaling; WebRTC data channels).
+- Larger bilingual item bank aligned to PSEB/NCERT with tagging.
+- Teacher analytics (class/section grouping, longitudinal progress).
+- Safe, scoped doubt assistant using retrieval over curated corpus.
+- Optional: small hosted model for rephrasing/explanations with aggressive caching.
+
+One-Liner Summary
+"Sahayak brings reliable, bilingual, offline classroom interaction to rural schools—teacher-led quizzes and micro-lessons that work on low-end phones without internet."
+
+
