@@ -58,6 +58,12 @@ export default function TeacherPage() {
     const ok = window.confirm("End session and delete this room?")
     if (!ok) return
     try {
+      // Broadcast an end signal to participants
+      const channel = supabase.channel(`presence:room:${roomId}`)
+      await channel.subscribe()
+      await channel.send({ type: "broadcast", event: "end", payload: { by: "teacher" } })
+      await supabase.removeChannel(channel)
+
       const { error } = await supabase.from("rooms").delete().eq("id", roomId)
       if (error) throw new Error(`Supabase error deleting room: ${error.message}`)
       setRoomId(null)
@@ -92,7 +98,7 @@ export default function TeacherPage() {
               <img alt="Room QR" src={qr} />
             </div>
           )}
-          <button className="border px-2 py-1" onClick={() => router.push(`/room/${roomId}`)}>
+          <button className="border px-2 py-1" onClick={() => router.push(`/room/${roomId}?as=teacher`)}>
             Go to Room
           </button>
           <button className="border px-2 py-1" onClick={onEndSession}>
