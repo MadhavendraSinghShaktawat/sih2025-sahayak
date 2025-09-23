@@ -3,6 +3,7 @@
 import * as React from "react"
 import { useParams, useSearchParams, useRouter } from "next/navigation"
 import { supabase } from "@/lib/supabaseClient"
+import ChatRoom from "@/components/ui/shadcn-io/ai/ChatRoom"
 import BasicToast from "@/components/smoothui/ui/BasicToast"
 import { AnimatePresence } from "motion/react"
 
@@ -116,6 +117,11 @@ export default function RoomPage() {
         >
           {ending ? "Ending..." : "End Session"}
         </button>
+      )}
+      {roomId && (
+        <div className="pt-4">
+          <ChatRoom roomId={roomId as string} role={isTeacher ? "teacher" : "student"} />
+        </div>
       )}
       <AnimatePresence>
         {showToast && (
