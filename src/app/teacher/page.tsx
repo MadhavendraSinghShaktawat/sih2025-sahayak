@@ -98,7 +98,12 @@ export default function TeacherPage() {
               <img alt="Room QR" src={qr} />
             </div>
           )}
-          <button className="border px-2 py-1" onClick={() => router.push(`/room/${roomId}?as=teacher`)}>
+          <button
+            className="border px-2 py-1"
+            onClick={() =>
+              router.push(`/room/${roomId}?as=teacher&name=${encodeURIComponent(name)}`)
+            }
+          >
             Go to Room
           </button>
           <button className="border px-2 py-1" onClick={onEndSession}>

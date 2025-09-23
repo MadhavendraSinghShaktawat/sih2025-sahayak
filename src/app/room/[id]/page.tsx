@@ -5,7 +5,7 @@ import { useParams, useSearchParams, useRouter } from "next/navigation"
 import { supabase } from "@/lib/supabaseClient"
 import ChatRoom from "@/components/ui/shadcn-io/ai/ChatRoom"
 import BasicToast from "@/components/smoothui/ui/BasicToast"
-import { AnimatePresence } from "motion/react"
+import { AnimatePresence, motion } from "motion/react"
 
 export default function RoomPage() {
   const params = useParams<{ id: string }>()
@@ -13,10 +13,27 @@ export default function RoomPage() {
   const search = useSearchParams()
   const router = useRouter()
   const isTeacher = search?.get("as") === "teacher"
+  const teacherName = search?.get("name") || "Teacher"
   const [onlineCount, setOnlineCount] = React.useState<number>(1)
   const [ending, setEnding] = React.useState(false)
   const [showToast, setShowToast] = React.useState(false)
+  const [otp, setOtp] = React.useState<string>("")
   const presenceRef = React.useRef<ReturnType<typeof supabase.channel> | null>(null)
+
+  // Fetch passcode (OTP)
+  React.useEffect(() => {
+    if (!roomId) return
+    ;(async () => {
+      const { data, error } = await supabase
+        .from("rooms")
+        .select("passcode")
+        .eq("id", roomId)
+        .single()
+      if (!error && data?.passcode) {
+        setOtp(String(data.passcode))
+      }
+    })()
+  }, [roomId])
 
   React.useEffect(() => {
     if (!roomId) return
@@ -83,14 +100,15 @@ export default function RoomPage() {
   }, [roomId, router])
 
   return (
-    <div className="p-6 space-y-2">
-      <p>Connected to room: {roomId}</p>
-      <p>Users online: {onlineCount}</p>
-      {isTeacher && (
-        <button
-          className="border px-2 py-1"
-          disabled={ending}
-          onClick={async () => {
+    <div className="min-h-screen h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
+      {roomId && (
+        <ChatRoom
+          roomId={roomId as string}
+          role={isTeacher ? "teacher" : "student"}
+          name={isTeacher ? teacherName : undefined}
+          onlineCount={onlineCount}
+          otp={otp}
+          onEndSession={isTeacher ? async () => {
             if (!roomId) return
             const ok = window.confirm("End session and delete this room?")
             if (!ok) return
@@ -113,24 +131,25 @@ export default function RoomPage() {
               setShowToast(false)
               router.push("/teacher")
             }, 1200)
-          }}
-        >
-          {ending ? "Ending..." : "End Session"}
-        </button>
+          } : undefined}
+        />
       )}
-      {roomId && (
-        <div className="pt-4">
-          <ChatRoom roomId={roomId as string} role={isTeacher ? "teacher" : "student"} />
-        </div>
-      )}
+
       <AnimatePresence>
         {showToast && (
-          <BasicToast
-            message="Session ended"
-            type="warning"
-            duration={1200}
-            onClose={() => setShowToast(false)}
-          />
+          <motion.div
+            initial={{ opacity: 0, scale: 0.8, y: 50 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.8, y: 50 }}
+            className="fixed bottom-6 right-6 z-50"
+          >
+            <BasicToast
+              message="Session ended"
+              type="warning"
+              duration={1200}
+              onClose={() => setShowToast(false)}
+            />
+          </motion.div>
         )}
       </AnimatePresence>
     </div>
