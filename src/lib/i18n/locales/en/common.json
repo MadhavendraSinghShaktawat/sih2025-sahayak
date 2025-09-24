@@ -1,0 +1,37 @@
+{
+  "app": {
+    "name": "Sahayak"
+  },
+  "actions": {
+    "continue": "Continue",
+    "createAccount": "Create account",
+    "haveAccountSignIn": "Have an account? Sign in",
+    "resendVerification": "Resend verification email"
+  },
+  "auth": {
+    "student": {
+      "signinTitle": "Student Sign In",
+      "signupTitle": "Student Sign Up",
+      "emailLabel": "Email",
+      "passwordLabel": "Password",
+      "notInvited": "This email is not invited by a teacher.",
+      "notStudent": "This account is not a student.",
+      "accountCreated": "Account created. Please verify your email, then sign in.",
+      "helper": "Invited by a teacher? Use your email and password.",
+      "teacherCta": "Sign in as teacher"
+    },
+    "teacher": {
+      "signinTitle": "Teacher Sign In",
+      "notTeacher": "This account is not a teacher.",
+      "verifySent": "Verification email sent. Please check your inbox.",
+      "studentInviteInfo": "Invites are required for student accounts.",
+      "signInAsStudent": "Sign in as student",
+      "createTeacher": "Create teacher account"
+    },
+    "common": {
+      "pleaseWait": "Please wait..."
+    }
+  }
+}
+
+

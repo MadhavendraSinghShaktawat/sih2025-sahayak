@@ -3,6 +3,8 @@
 import * as React from "react"
 import { createClient } from "@supabase/supabase-js"
 import MovingBorderButton from "@/components/blocks/moving-border-button"
+import LanguageSwitcher from "@/components/ui/language-switcher"
+import { useI18n } from "@/context/i18n-provider"
 import Link from "next/link"
 
 const supabase = createClient(
@@ -11,6 +13,7 @@ const supabase = createClient(
 )
 
 export default function StudentSignIn() {
+  const { t } = useI18n()
   const [email, setEmail] = React.useState("")
   const [password, setPassword] = React.useState("")
   const [mode, setMode] = React.useState<"signin" | "signup">("signin")
@@ -50,7 +53,7 @@ export default function StudentSignIn() {
             .maybeSingle()
           
           if (!invited) {
-            setError("This email is not invited by a teacher.")
+            setError(t("auth.student.notInvited"))
             return
           }
           
@@ -69,7 +72,7 @@ export default function StudentSignIn() {
             return
           }
         } else if (prof.role !== "student") {
-          setError("This account is not a student.")
+          setError(t("auth.student.notStudent"))
           return
         }
         
@@ -92,7 +95,7 @@ export default function StudentSignIn() {
       }
       if (!invited) {
         setLoading(false)
-        setError("This email is not invited by a teacher.")
+        setError(t("auth.student.notInvited"))
         return
       }
 
@@ -108,7 +111,7 @@ export default function StudentSignIn() {
       }
 
       setLoading(false)
-      setSuccess("Account created. Please verify your email, then sign in.")
+      setSuccess(t("auth.student.accountCreated"))
       setMode("signin")
     }
   }
@@ -117,7 +120,7 @@ export default function StudentSignIn() {
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-white to-blue-50 p-6">
       <div className="w-full max-w-md rounded-2xl border bg-white shadow-sm p-8">
         <div className="flex items-center justify-between mb-4">
-          <h1 className="text-xl font-semibold">{mode === "signin" ? "Student Sign In" : "Student Sign Up"}</h1>
+          <h1 className="text-xl font-semibold">{mode === "signin" ? t("auth.student.signinTitle") : t("auth.student.signupTitle")}</h1>
           <button
             className="text-sm underline"
             type="button"
@@ -127,23 +130,26 @@ export default function StudentSignIn() {
               setSuccess(null)
             }}
           >
-            {mode === "signin" ? "Create account" : "Have an account? Sign in"}
+            {mode === "signin" ? t("actions.createAccount") : t("actions.haveAccountSignIn")}
           </button>
         </div>
         <form className="space-y-4" onSubmit={onSubmit}>
           <div className="space-y-2">
-            <label className="text-sm">Email</label>
+            <label className="text-sm">{t("auth.student.emailLabel")}</label>
             <input className="w-full border rounded-md px-3 py-2" type="email" value={email} onChange={(e)=>setEmail(e.target.value)} required/>
           </div>
           <div className="space-y-2">
-            <label className="text-sm">Password</label>
+            <label className="text-sm">{t("auth.student.passwordLabel")}</label>
             <input className="w-full border rounded-md px-3 py-2" type="password" value={password} onChange={(e)=>setPassword(e.target.value)} required/>
           </div>
           {error && <p className="text-sm text-red-600">{error}</p>}
           {success && <p className="text-sm text-green-600">{success}</p>}
-          <MovingBorderButton type="submit">{loading ? "Please wait..." : "Continue"}</MovingBorderButton>
+          <MovingBorderButton type="submit">{loading ? t("auth.common.pleaseWait") : t("actions.continue")}</MovingBorderButton>
         </form>
-        <p className="text-xs text-gray-500 mt-4">Invited by a teacher? Use your email and password. <Link href="/auth/teacher" className="underline">Sign in as teacher</Link></p>
+        <p className="text-xs text-gray-500 mt-4">{t("auth.student.helper")} <Link href="/auth/teacher" className="underline">{t("auth.student.teacherCta")}</Link></p>
+        <div className="mt-6 flex justify-end">
+          <LanguageSwitcher />
+        </div>
       </div>
     </div>
   )
