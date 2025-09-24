@@ -65,7 +65,7 @@ QUIZ REQUIREMENTS:
 - Question Type: ${options.type || "mcq"}
 - Number of Questions: ${options.questionCount || 5}
 
-Please generate a quiz in the following JSON format:
+Please generate a quiz in the following JSON format with detailed explanations:
 {
   "title": "Quiz Title",
   "description": "Brief description of the quiz",
@@ -76,7 +76,18 @@ Please generate a quiz in the following JSON format:
       "question": "Question text here?",
       "options": ["Option A", "Option B", "Option C", "Option D"],
       "correctAnswer": 0,
-      "explanation": "Why this answer is correct",
+      "explanations": {
+        "correct": "The correct answer is Option A because [simple, direct explanation]",
+        "incorrect": [
+          "Option B is incorrect because [simple explanation]",
+          "Option C is incorrect because [simple explanation]", 
+          "Option D is incorrect because [simple explanation]"
+        ]
+      },
+      "feedback": {
+        "correct": "✅ Correct! The answer is Option A because [brief reinforcement]",
+        "incorrect": "❌ Incorrect. The correct answer is Option A because [simple explanation]"
+      },
       "points": 1
     }
   ],
@@ -95,8 +106,12 @@ IMPORTANT:
 - Return ONLY valid JSON, no additional text
 - Ensure all questions are relevant to the provided content
 - Make questions clear and unambiguous
-- Provide good explanations for answers
+- Provide SIMPLE and DIRECT explanations for all answer choices
+- Include the correct answer in explanations (e.g., "The correct answer is X because...")
+- Make explanations educational but concise
 - Use appropriate difficulty level for the class
+- For incorrect answers, explain why each option is wrong
+- For correct answers, reinforce why the answer is right
 `;
 
     // Call Gemini API
@@ -159,7 +174,15 @@ IMPORTANT:
           question: q.question || "",
           options: q.options || [],
           correctAnswer: q.correctAnswer ?? 0,
-          explanation: q.explanation || "",
+          explanation: q.explanation || "", // Keep for backward compatibility
+          explanations: q.explanations || {
+            correct: q.explanation || "No explanation provided",
+            incorrect: []
+          },
+          feedback: q.feedback || {
+            correct: "✅ Correct!",
+            incorrect: "❌ Incorrect."
+          },
           points: q.points || 1,
         })) || [],
       metadata: {

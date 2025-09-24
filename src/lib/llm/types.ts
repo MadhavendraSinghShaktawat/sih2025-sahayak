@@ -46,7 +46,15 @@ export interface Question {
   question: string;
   options?: string[]; // For MCQ
   correctAnswer: string | number; // For MCQ: index, others: string
-  explanation?: string;
+  explanation?: string; // Keep for backward compatibility
+  explanations?: {
+    correct: string;
+    incorrect: string[];
+  };
+  feedback?: {
+    correct: string;
+    incorrect: string;
+  };
   points?: number;
 }
 

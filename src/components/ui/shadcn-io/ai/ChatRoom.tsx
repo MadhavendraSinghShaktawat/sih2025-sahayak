@@ -273,21 +273,23 @@ export function ChatRoom({
   }
 
   return (
-    <div className="flex flex-col h-screen">
-      {/* Chat Header */}
-      <div className="bg-gradient-to-r from-blue-500 to-blue-600 px-6 py-4">
+    <div className="flex flex-col h-screen bg-gray-50 overflow-hidden">
+      {/* Chat Header - Mobile Optimized */}
+      <div className="bg-gradient-to-r from-blue-500 to-blue-600 px-3 sm:px-6 py-3 sm:py-4 flex-shrink-0">
         <div className="flex items-center justify-between">
-          <div>
-            <h3 className="text-white font-semibold text-lg">
+          <div className="flex-1 min-w-0">
+            <h3 className="text-white font-semibold text-base sm:text-lg truncate">
               Teaching Session
             </h3>
-            <div className="flex items-center gap-4 mt-1">
-              <p className="text-blue-100 text-sm">
+            <div className="flex items-center gap-2 sm:gap-4 mt-1 flex-wrap">
+              <p className="text-blue-100 text-xs sm:text-sm">
                 {role === "teacher" ? "Teaching Mode" : "Student Mode"}
               </p>
               {otp && (
-                <span className="flex items-center gap-2 text-blue-100 text-xs font-mono bg-white/10 px-2 py-1 rounded">
-                  OTP: {otp}
+                <span className="flex items-center gap-1 sm:gap-2 text-blue-100 text-xs font-mono bg-white/10 px-2 py-1 rounded">
+                  <span className="hidden sm:inline">OTP:</span>
+                  <span className="sm:hidden">:</span>
+                  <span className="font-mono">{otp}</span>
                   <ButtonCopy
                     onCopy={async () => {
                       try {
@@ -300,29 +302,31 @@ export function ChatRoom({
               )}
             </div>
           </div>
-          <div className="flex items-center gap-3">
-            <div className="flex items-center gap-2 bg-white/20 px-3 py-1 rounded-full">
+          <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
+            <div className="flex items-center gap-1 sm:gap-2 bg-white/20 px-2 sm:px-3 py-1 rounded-full">
               <div className="w-2 h-2 bg-green-300 rounded-full animate-pulse" />
-              <span className="text-white text-sm font-medium">
-                {onlineCount} online
+              <span className="text-white text-xs sm:text-sm font-medium">
+                <span className="hidden sm:inline">{onlineCount} online</span>
+                <span className="sm:hidden">{onlineCount}</span>
               </span>
             </div>
             {role === "teacher" && onEndSession && (
               <button
                 onClick={onEndSession}
-                className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-full text-sm font-medium transition-colors duration-200"
+                className="bg-red-500 hover:bg-red-600 text-white px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-medium transition-colors duration-200"
               >
-                End Session
+                <span className="hidden sm:inline">End Session</span>
+                <span className="sm:hidden">End</span>
               </button>
             )}
           </div>
         </div>
       </div>
 
-      {/* Messages Area */}
-      <div className="flex-1 bg-gray-50 min-h-0">
+      {/* Messages Area - Mobile Optimized */}
+      <div className="flex-1 bg-gray-50 min-h-0 overflow-hidden">
         <Conversation className="relative h-full">
-          <ConversationContent className="p-4 h-full">
+          <ConversationContent className="p-2 sm:p-4 h-full overflow-y-auto">
             {loading ? (
               <div className="flex items-center justify-center h-full text-gray-500">
                 <div className="text-center">
@@ -355,42 +359,42 @@ export function ChatRoom({
                     >
                       <MessageContent className="text-gray-800">
                         {m.kind === "quiz" && m.data ? (
-                          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                          <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 sm:p-4">
                             <div className="flex items-center gap-2 mb-2">
-                              <BookOpen className="w-4 h-4 text-blue-600" />
-                              <span className="font-semibold text-blue-800">Quiz: {m.data.title}</span>
+                              <BookOpen className="w-4 h-4 text-blue-600 flex-shrink-0" />
+                              <span className="font-semibold text-blue-800 text-sm sm:text-base truncate">Quiz: {m.data.title}</span>
                             </div>
-                            <p className="text-sm text-blue-700 mb-3">{m.data.subject}</p>
-                          <button
-                            onClick={() => {
-                              console.log("Clicking quiz button, original data:", m.data);
-                              console.log("Questions type:", typeof m.data.questions);
-                              console.log("Questions value:", m.data.questions);
-                              
-                              // Transform message data to Quiz format
-                              const quizData = {
-                                id: m.data.quizId,
-                                title: m.data.title,
-                                description: `Quiz on ${m.data.subject}`,
-                                questions: m.data.questions || [],
-                                metadata: {
-                                  subject: m.data.subject,
-                                  class: "Any",
-                                  language: "English",
-                                  difficulty: "medium",
-                                  estimatedTime: 10,
-                                  createdAt: new Date().toISOString(),
-                                  generatedBy: "teacher"
-                                }
-                              };
-                              
-                              console.log("Transformed quiz data:", quizData);
-                              setQuizModal({ open: true, quizId: m.data.quizId, quiz: quizData });
-                            }}
-                            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm"
-                          >
-                            Start Quiz
-                          </button>
+                            <p className="text-xs sm:text-sm text-blue-700 mb-3">{m.data.subject}</p>
+                            <button
+                              onClick={() => {
+                                console.log("Clicking quiz button, original data:", m.data);
+                                console.log("Questions type:", typeof m.data.questions);
+                                console.log("Questions value:", m.data.questions);
+                                
+                                // Transform message data to Quiz format
+                                const quizData = {
+                                  id: m.data.quizId,
+                                  title: m.data.title,
+                                  description: `Quiz on ${m.data.subject}`,
+                                  questions: m.data.questions || [],
+                                  metadata: {
+                                    subject: m.data.subject,
+                                    class: "Any",
+                                    language: "English",
+                                    difficulty: "medium",
+                                    estimatedTime: 10,
+                                    createdAt: new Date().toISOString(),
+                                    generatedBy: "teacher"
+                                  }
+                                };
+                                
+                                console.log("Transformed quiz data:", quizData);
+                                setQuizModal({ open: true, quizId: m.data.quizId, quiz: quizData });
+                              }}
+                              className="w-full sm:w-auto px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium touch-manipulation"
+                            >
+                              Start Quiz
+                            </button>
                           </div>
                         ) : (
                           m.text
@@ -407,57 +411,60 @@ export function ChatRoom({
           <ConversationScrollButton />
         </Conversation>
         {quizModal.open && quizModal.quiz && (
-          <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4">
-            <div className="max-w-3xl w-full rounded-xl bg-white p-4">
-              <div className="flex items-center justify-between mb-3">
-                <div className="font-semibold">Quiz</div>
+          <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-2 sm:p-4">
+            <div className="max-w-3xl w-full max-h-[90vh] rounded-xl bg-white p-2 sm:p-4 overflow-hidden flex flex-col">
+              <div className="flex items-center justify-between mb-3 flex-shrink-0">
+                <div className="font-semibold text-sm sm:text-base">Quiz</div>
                 <button
-                  className="rounded-md border px-3 py-1 text-sm"
+                  className="rounded-md border px-2 sm:px-3 py-1 text-xs sm:text-sm hover:bg-gray-50 transition-colors"
                   onClick={() => setQuizModal({ open: false })}
                 >
                   Close
                 </button>
               </div>
-              <QuizDisplay quiz={quizModal.quiz} roomId={roomId} />
+              <div className="flex-1 overflow-hidden">
+                <QuizDisplay quiz={quizModal.quiz} roomId={roomId} />
+              </div>
             </div>
           </div>
         )}
       </div>
 
-      {/* Input Area */}
-      <div className="bg-white border-t border-gray-200 p-4">
-        <div className="flex gap-3 items-end">
-          {/* Only show name field for students; teacher name comes from query */}
-          {role === "student" && (
-            <div className="flex-shrink-0">
-              <input
-                placeholder="Your name"
-                value={displayName}
-                onChange={(e) => setDisplayName(e.target.value)}
-                className="w-24 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
-              />
-            </div>
-          )}
-          <div className="flex-1 flex gap-2 items-end">
+      {/* Input Area - Mobile Optimized */}
+      <div className="bg-white border-t border-gray-200 p-2 sm:p-4 flex-shrink-0">
+        <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
+          {/* Mobile: Stack vertically, Desktop: Horizontal */}
+          <div className="flex gap-2 sm:gap-3 items-end">
+            {/* Only show name field for students; teacher name comes from query */}
+            {role === "student" && (
+              <div className="flex-shrink-0">
+                <input
+                  placeholder="Your name"
+                  value={displayName}
+                  onChange={(e) => setDisplayName(e.target.value)}
+                  className="w-20 sm:w-24 px-2 sm:px-3 py-2 border border-gray-300 rounded-lg text-xs sm:text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+                />
+              </div>
+            )}
             {role === "teacher" && (
               <BasicDropdown
                 label="Actions"
-                className="w-28"
+                className="w-20 sm:w-28"
                 items={[
                   {
                     id: "create_quiz",
                     label: "Create Quiz",
-                    icon: <BookOpen className="w-4 h-4" />,
+                    icon: <BookOpen className="w-3 h-3 sm:w-4 sm:h-4" />,
                   },
                   {
                     id: "select_quiz",
                     label: "Select Quiz",
-                    icon: <BookOpen className="w-4 h-4" />,
+                    icon: <BookOpen className="w-3 h-3 sm:w-4 sm:h-4" />,
                   },
                   {
                     id: "invite_students",
                     label: "Invite Students",
-                    icon: <UserPlus className="w-4 h-4" />,
+                    icon: <UserPlus className="w-3 h-3 sm:w-4 sm:h-4" />,
                   },
                 ]}
                 highlightId={(() => {
@@ -479,21 +486,26 @@ export function ChatRoom({
                 }}
               />
             )}
+          </div>
+          
+          {/* Message input and send button */}
+          <div className="flex gap-2 items-end flex-1">
             <input
-              placeholder="Type your message here..."
+              placeholder="Type your message..."
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={onKeyDown}
-              className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none resize-none"
+              className="flex-1 px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none resize-none text-sm sm:text-base"
             />
             <button
-              className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-4 sm:px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 font-medium disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base touch-manipulation"
               onClick={sendMessage}
               disabled={
                 !input.trim() || (role === "student" && !displayName.trim())
               }
             >
-              Send
+              <span className="hidden sm:inline">Send</span>
+              <span className="sm:hidden">📤</span>
             </button>
           </div>
         </div>

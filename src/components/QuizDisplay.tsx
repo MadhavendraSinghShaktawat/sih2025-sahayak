@@ -86,6 +86,17 @@ export function QuizDisplay({ quiz, roomId, onComplete }: QuizDisplayProps) {
   } | null>(null);
   const [startTime, setStartTime] = React.useState<number>(Date.now());
   const [saving, setSaving] = React.useState(false);
+  
+  // AI Feedback state
+  const [answerFeedback, setAnswerFeedback] = React.useState<{
+    questionId: string;
+    isCorrect: boolean;
+    explanation: string;
+    showBubble: boolean;
+  } | null>(null);
+  
+  // Auto-hide timer for correct answers
+  const autoHideTimerRef = React.useRef<NodeJS.Timeout | null>(null);
 
   // Debug logging
   console.log("QuizDisplay received quiz:", quiz);
@@ -124,8 +135,45 @@ export function QuizDisplay({ quiz, roomId, onComplete }: QuizDisplayProps) {
 
   const handleAnswer = (value: string | number) => {
     if (!current) return;
+    
+    // Update answers
     const updated = { ...answers, [current.id]: value };
     setAnswers(updated);
+    
+    // Check if answer is correct
+    const isCorrect = String(value) === String(current.correctAnswer);
+    
+    // Get feedback message
+    let explanation = "";
+    if (current.feedback) {
+      explanation = isCorrect ? current.feedback.correct : current.feedback.incorrect;
+    } else if (current.explanations) {
+      explanation = isCorrect ? current.explanations.correct : current.explanations.incorrect[0] || "No explanation available";
+    } else {
+      // Fallback for old quizzes
+      explanation = isCorrect ? "✅ Correct!" : "❌ Incorrect.";
+    }
+    
+    // Show AI feedback bubble
+    setAnswerFeedback({
+      questionId: current.id,
+      isCorrect,
+      explanation,
+      showBubble: true
+    });
+    
+    // Auto-hide for correct answers after 3 seconds
+    if (isCorrect) {
+      // Clear any existing timer
+      if (autoHideTimerRef.current) {
+        clearTimeout(autoHideTimerRef.current);
+      }
+      
+      // Set new timer
+      autoHideTimerRef.current = setTimeout(() => {
+        setAnswerFeedback(null);
+      }, 3000);
+    }
   };
 
   const finishQuiz = async () => {
@@ -175,6 +223,15 @@ export function QuizDisplay({ quiz, roomId, onComplete }: QuizDisplayProps) {
     setResult(result);
     setCompleted(true);
   };
+
+  // Cleanup timer on unmount
+  React.useEffect(() => {
+    return () => {
+      if (autoHideTimerRef.current) {
+        clearTimeout(autoHideTimerRef.current);
+      }
+    };
+  }, []);
 
   // Swipe navigation
   React.useEffect(() => {
@@ -287,6 +344,60 @@ export function QuizDisplay({ quiz, roomId, onComplete }: QuizDisplayProps) {
             onAnswer={handleAnswer}
           />
         </motion.div>
+      </AnimatePresence>
+
+      {/* AI Feedback Bubble */}
+      <AnimatePresence>
+        {answerFeedback?.showBubble && (
+          <motion.div
+            initial={{ opacity: 0, y: -20, scale: 0.9 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -20, scale: 0.9 }}
+            transition={{ type: "spring", bounce: 0.25 }}
+            className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 max-w-sm mx-auto"
+          >
+            <div className={`rounded-lg border p-4 shadow-lg ${
+              answerFeedback.isCorrect 
+                ? "border-emerald-100 bg-emerald-50 dark:border-emerald-900 dark:bg-emerald-950"
+                : "border-red-100 bg-red-50 dark:border-red-900 dark:bg-red-950"
+            }`}>
+              <div className="flex items-center gap-3 mb-3">
+                <div className={`flex-shrink-0 ${
+                  answerFeedback.isCorrect ? "text-emerald-500" : "text-red-500"
+                }`}>
+                  {answerFeedback.isCorrect ? (
+                    <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                    </svg>
+                  ) : (
+                    <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                    </svg>
+                  )}
+                </div>
+                <span className="font-medium text-sm">
+                  {answerFeedback.isCorrect ? "Correct Answer" : "Incorrect Answer"}
+                </span>
+              </div>
+              <p className="text-sm text-gray-700 dark:text-gray-300 mb-3">
+                {answerFeedback.explanation}
+              </p>
+              {!answerFeedback.isCorrect && (
+                <button 
+                  onClick={() => {
+                    if (autoHideTimerRef.current) {
+                      clearTimeout(autoHideTimerRef.current);
+                    }
+                    setAnswerFeedback(null);
+                  }}
+                  className="w-full px-3 py-2 bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-md transition-colors text-sm font-medium"
+                >
+                  Continue
+                </button>
+              )}
+            </div>
+          </motion.div>
+        )}
       </AnimatePresence>
     </div>
   );
