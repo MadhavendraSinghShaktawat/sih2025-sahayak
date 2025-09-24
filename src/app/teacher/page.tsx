@@ -4,9 +4,13 @@ import * as React from "react"
 import { useRouter } from "next/navigation"
 import { supabase, hasSupabaseEnv } from "@/lib/supabaseClient"
 import { retry } from "@/lib/retry"
+import { QuizTestComponent } from "@/components/QuizTestComponent"
+import { QuizDisplay } from "@/components/QuizDisplay"
+import { useQuizzes } from "@/hooks/useQuizzes"
 
 export default function TeacherPage() {
   const router = useRouter()
+  const { quizzes } = useQuizzes()
   const [name, setName] = React.useState("")
   const [creating, setCreating] = React.useState(false)
   const [roomId, setRoomId] = React.useState<string | null>(null)
@@ -222,6 +226,19 @@ export default function TeacherPage() {
             {/* Placeholder */}
             <div className="rounded-xl border bg-white p-6 text-gray-500">Resources (coming soon)</div>
           </div>
+
+          {/* Quiz Database Test Section */}
+          <div className="mt-8">
+            <QuizTestComponent />
+          </div>
+
+          {/* Quick preview of latest quiz */}
+          {quizzes && quizzes.length > 0 && (
+            <div className="mt-8 rounded-xl border bg-white p-6">
+              <h2 className="font-semibold mb-2">Preview Latest Quiz</h2>
+              <QuizDisplay quiz={quizzes[0]} />
+            </div>
+          )}
         </div>
       )}
     </div>

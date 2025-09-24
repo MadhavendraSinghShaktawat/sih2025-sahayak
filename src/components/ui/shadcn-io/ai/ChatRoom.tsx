@@ -9,14 +9,21 @@ import {
   ConversationScrollButton,
 } from "@/components/ui/shadcn-io/ai/conversation"
 import { Message, MessageAvatar, MessageContent } from "@/components/ui/shadcn-io/ai/message"
+import { QuizDisplay } from "@/components/QuizDisplay"
+import { QuizGenerationModal } from "@/components/smoothui/ui/QuizGenerationModal"
+import { SelectQuizModal } from "@/components/smoothui/ui/SelectQuizModal"
+import BasicDropdown from "@/components/smoothui/ui/BasicDropdown"
+import { BookOpen, UserPlus } from "lucide-react"
 import ButtonCopy from "@/components/smoothui/ui/ButtonCopy"
 
 type ChatMessage = {
   id: string
-  text: string
+  text?: string
   name: string
   avatar?: string
   role: "teacher" | "student"
+  kind?: "text" | "quiz"
+  data?: any
 }
 
 export function ChatRoom({
@@ -37,6 +44,9 @@ export function ChatRoom({
   otp?: string
 }) {
   const [messages, setMessages] = React.useState<ChatMessage[]>([])
+  const [quizModal, setQuizModal] = React.useState<{ open: boolean; quizId?: string; quiz?: any }>(() => ({ open: false }))
+  const [showQuizModal, setShowQuizModal] = React.useState(false)
+  const [showSelectQuiz, setShowSelectQuiz] = React.useState(false)
   const [input, setInput] = React.useState("")
   const [loading, setLoading] = React.useState(true)
   const channelRef = React.useRef<ReturnType<typeof supabase.channel> | null>(null)
@@ -62,7 +72,7 @@ export function ChatRoom({
         const data = await retry(async () => {
           const result = await supabase
             .from("messages")
-            .select("id, text, name, role, created_at")
+            .select("id, text, name, role, kind, data, created_at")
             .eq("room_id", roomId)
             .order("created_at", { ascending: true })
             .limit(50)
@@ -76,6 +86,8 @@ export function ChatRoom({
           text: msg.text,
           name: msg.name,
           role: msg.role as "teacher" | "student",
+          kind: (msg.kind || 'text') as any,
+          data: msg.data || undefined,
         }))
 
         setMessages(dbMessages)
@@ -110,6 +122,8 @@ export function ChatRoom({
             text: newMsg.text,
             name: newMsg.name,
             role: newMsg.role as "teacher" | "student",
+            kind: (newMsg.kind || 'text') as any,
+            data: newMsg.data || undefined,
           }
           setMessages((prev) => {
             // Avoid duplicates by checking if message already exists
@@ -137,7 +151,7 @@ export function ChatRoom({
       try {
         const data = await supabase
           .from("messages")
-          .select("id, text, name, role, created_at")
+          .select("id, text, name, role, kind, data, created_at")
           .eq("room_id", roomId)
           .order("created_at", { ascending: true })
           .limit(50)
@@ -148,6 +162,8 @@ export function ChatRoom({
             text: msg.text,
             name: msg.name,
             role: msg.role as "teacher" | "student",
+            kind: (msg.kind || 'text') as any,
+            data: msg.data || undefined,
           }))
           
           setMessages(prev => {
@@ -225,6 +241,12 @@ export function ChatRoom({
 
   function onKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
     if (e.key === "Enter" && !e.shiftKey) {
+      const trimmed = input.trim()
+      if (role === 'teacher' && trimmed.toLowerCase().startsWith('/quiz')) {
+        e.preventDefault()
+        setShowQuizModal(true)
+        return
+      }
       e.preventDefault()
       sendMessage()
     }
@@ -298,7 +320,41 @@ export function ChatRoom({
               <>
                 {messages.map((m) => (
                   <Message key={m.id} from={m.role === "teacher" ? "user" : "assistant"}>
-                    <MessageContent className="text-gray-800">{m.text}</MessageContent>
+                    {m.kind === 'quiz' ? (
+                      <MessageContent className="text-gray-900">
+                        <div className={`rounded-xl border p-4 shadow-sm hover:shadow-md transition-shadow ${m.role === 'teacher' ? 'bg-blue-50/60 border-blue-200' : 'bg-white border-gray-200'}`}>
+                          <div className="font-semibold text-gray-900">{m.data?.title || 'Quiz'}</div>
+                          <div className="text-xs text-gray-600 mb-3 mt-1">
+                            {m.data?.subject ? `Subject: ${m.data.subject}` : null}
+                            {m.data?.questions ? ` • Questions: ${m.data.questions}` : null}
+                          </div>
+                          <button
+                            className="text-sm rounded-md bg-blue-600 text-white px-3 py-1 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400 disabled:opacity-50"
+                            onClick={async () => {
+                              // Open modal and fetch quiz by id
+                              const id = m.data?.quizId
+                              if (!id) return
+                              try {
+                                const { data: { session } } = await supabase.auth.getSession()
+                                const resp = await fetch(`/api/quizzes?id=${id}`, {
+                                  headers: { Authorization: `Bearer ${session?.access_token || ''}` }
+                                })
+                                const json = await resp.json()
+                                if (json.success) {
+                                  setQuizModal({ open: true, quizId: id, quiz: json.quiz })
+                                }
+                              } catch (e) {
+                                console.error('Failed to open quiz', e)
+                              }
+                            }}
+                          >
+                            Open Quiz
+                          </button>
+                        </div>
+                      </MessageContent>
+                    ) : (
+                      <MessageContent className={`text-gray-900 rounded-lg border px-3 py-2 ${m.role === 'teacher' ? 'bg-blue-50/60 border-blue-200' : 'bg-white border-gray-200'}`}>{m.text}</MessageContent>
+                    )}
                     <MessageAvatar name={m.name} src={m.avatar || ""} />
                   </Message>
                 ))}
@@ -308,6 +364,17 @@ export function ChatRoom({
           </ConversationContent>
           <ConversationScrollButton />
         </Conversation>
+        {quizModal.open && quizModal.quiz && (
+          <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4">
+            <div className="max-w-3xl w-full rounded-xl bg-white p-4">
+              <div className="flex items-center justify-between mb-3">
+                <div className="font-semibold">Quiz</div>
+                <button className="rounded-md border px-3 py-1 text-sm" onClick={() => setQuizModal({ open: false })}>Close</button>
+              </div>
+              <QuizDisplay quiz={quizModal.quiz} />
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Input Area */}
@@ -324,7 +391,35 @@ export function ChatRoom({
               />
             </div>
           )}
-          <div className="flex-1 flex gap-2">
+          <div className="flex-1 flex gap-2 items-end">
+            {role === 'teacher' && (
+              <BasicDropdown
+                label="Actions"
+                className="w-28"
+                items={[
+                  { id: 'create_quiz', label: 'Create Quiz', icon: <BookOpen className="w-4 h-4"/> },
+                  { id: 'select_quiz', label: 'Select Quiz', icon: <BookOpen className="w-4 h-4"/> },
+                  { id: 'invite_students', label: 'Invite Students', icon: <UserPlus className="w-4 h-4"/> },
+                ]}
+                highlightId={(() => {
+                  const t = input.trim().toLowerCase()
+                  if (t.startsWith('/quiz')) return 'create_quiz'
+                  if (t.startsWith('/selectquiz')) return 'select_quiz'
+                  return undefined
+                })()}
+                onChange={(item) => {
+                  if (item.id === 'create_quiz') {
+                    setShowQuizModal(true)
+                  }
+                  if (item.id === 'select_quiz') {
+                    setShowSelectQuiz(true)
+                  }
+                  if (item.id === 'invite_students') {
+                    window.open('/teacher', '_self')
+                  }
+                }}
+              />
+            )}
             <input
               placeholder="Type your message here..."
               value={input}
@@ -344,6 +439,19 @@ export function ChatRoom({
         {role === "student" && !displayName.trim() && (
           <p className="text-xs text-gray-500 mt-2">Please enter your name to start chatting</p>
         )}
+        {/* Quiz Modal trigger from dropdown or /quiz */}
+        <QuizGenerationModal
+          isOpen={showQuizModal}
+          onClose={() => setShowQuizModal(false)}
+          command="/quiz"
+          roomId={roomId}
+          onQuizGenerated={() => {}}
+        />
+        <SelectQuizModal
+          isOpen={showSelectQuiz}
+          onClose={() => setShowSelectQuiz(false)}
+          roomId={roomId}
+        />
       </div>
     </div>
   )

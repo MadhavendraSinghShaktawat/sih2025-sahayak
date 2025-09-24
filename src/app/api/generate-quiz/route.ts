@@ -1,4 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { createClient } from '@supabase/supabase-js'
+
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 
 export async function POST(request: NextRequest) {
   try {
@@ -10,6 +14,54 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         { error: 'Gemini API key not configured' },
         { status: 500 }
+      )
+    }
+
+    // Get the authorization header
+    const authHeader = request.headers.get('authorization')
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return NextResponse.json(
+        { error: 'Missing or invalid authorization header' },
+        { status: 401 }
+      )
+    }
+
+    const token = authHeader.replace('Bearer ', '')
+    
+    // Create Supabase client for server-side with user's token so RLS applies
+    const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false
+      },
+      global: {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      }
+    })
+    
+    // Set the session
+    const { data: { user }, error: authError } = await supabase.auth.getUser(token)
+    
+    if (authError || !user) {
+      return NextResponse.json(
+        { error: 'Invalid token' },
+        { status: 401 }
+      )
+    }
+
+    // Check if user is a teacher
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('role')
+      .eq('id', user.id)
+      .single()
+
+    if (!profile || profile.role !== 'teacher') {
+      return NextResponse.json(
+        { error: 'Only teachers can create quizzes' },
+        { status: 403 }
       )
     }
 
@@ -95,16 +147,16 @@ IMPORTANT:
     
     // Parse the quiz response
     const cleanResponse = responseText.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim()
-    const quizData = JSON.parse(cleanResponse)
+    const parsedQuizData = JSON.parse(cleanResponse)
     
     // Generate unique IDs
     const quizId = `quiz_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
     
     const quiz = {
       id: quizId,
-      title: quizData.title || 'Generated Quiz',
-      description: quizData.description || '',
-      questions: quizData.questions?.map((q: any, index: number) => ({
+      title: parsedQuizData.title || 'Generated Quiz',
+      description: parsedQuizData.description || '',
+      questions: parsedQuizData.questions?.map((q: any, index: number) => ({
         id: q.id || `q${index + 1}`,
         type: q.type || 'mcq',
         question: q.question || '',
@@ -114,21 +166,64 @@ IMPORTANT:
         points: q.points || 1
       })) || [],
       metadata: {
-        subject: quizData.metadata?.subject || 'General',
-        class: quizData.metadata?.class || 'Any',
-        language: quizData.metadata?.language || 'English',
-        difficulty: quizData.metadata?.difficulty || 'medium',
-        estimatedTime: quizData.metadata?.estimatedTime || 10,
-        createdAt: quizData.metadata?.createdAt || new Date().toISOString(),
+        subject: parsedQuizData.metadata?.subject || 'General',
+        class: parsedQuizData.metadata?.class || 'Any',
+        language: parsedQuizData.metadata?.language || 'English',
+        difficulty: parsedQuizData.metadata?.difficulty || 'medium',
+        estimatedTime: parsedQuizData.metadata?.estimatedTime || 10,
+        createdAt: parsedQuizData.metadata?.createdAt || new Date().toISOString(),
         generatedBy: 'gemini'
       }
     }
 
+    // Store the quiz in the database
+    const quizData = {
+      teacher_id: user.id,
+      title: quiz.title,
+      description: quiz.description,
+      subject: quiz.metadata.subject,
+      class_level: quiz.metadata.class,
+      language: quiz.metadata.language,
+      difficulty: quiz.metadata.difficulty,
+      type: 'mcq', // Default to MCQ for now
+      questions: quiz.questions,
+      metadata: quiz.metadata
+    }
+
+    const { data: storedQuiz, error: storageError } = await supabase
+      .from('quizzes')
+      .insert(quizData)
+      .select()
+      .single()
+
+    if (storageError) {
+      console.error('Failed to store quiz:', storageError)
+      // Still return the quiz even if storage fails
+    }
+
+    // Use stored quiz if available, otherwise use generated quiz
+    const finalQuiz = storedQuiz ? {
+      id: storedQuiz.id,
+      title: storedQuiz.title,
+      description: storedQuiz.description,
+      questions: storedQuiz.questions,
+      metadata: {
+        subject: storedQuiz.subject,
+        class: storedQuiz.class_level,
+        language: storedQuiz.language,
+        difficulty: storedQuiz.difficulty,
+        estimatedTime: storedQuiz.metadata?.estimatedTime || 10,
+        createdAt: storedQuiz.created_at,
+        generatedBy: storedQuiz.metadata?.generatedBy || 'gemini'
+      }
+    } : quiz
+
     return NextResponse.json({
       success: true,
-      quiz,
+      quiz: finalQuiz,
       provider: 'gemini',
-      processingTime: Date.now() - Date.now() // We'll calculate this properly
+      processingTime: Date.now() - Date.now(), // We'll calculate this properly
+      stored: !storageError
     })
 
   } catch (error) {

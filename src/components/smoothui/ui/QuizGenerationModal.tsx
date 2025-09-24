@@ -12,13 +12,15 @@ interface QuizGenerationModalProps {
   onClose: () => void
   onQuizGenerated: (quiz: any) => void // Will be called when quiz is generated
   command: string
+  roomId?: string // If provided, will post to chat as quiz message
 }
 
 export function QuizGenerationModal({
   isOpen,
   onClose,
   onQuizGenerated,
-  command
+  command,
+  roomId
 }: QuizGenerationModalProps) {
   const [content, setContent] = React.useState("")
   const [contentType, setContentType] = React.useState<'text' | 'pdf' | 'image'>('text')
@@ -44,6 +46,26 @@ export function QuizGenerationModal({
       
       if (response.success && response.quiz) {
         onQuizGenerated(response.quiz)
+
+        // Optional: post to chat if roomId provided (teacher only; enforced server-side)
+        if (roomId) {
+          try {
+            const resp = await fetch(`/api/rooms/${roomId}/post-quiz`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({
+                quizId: response.quiz.id,
+                title: response.quiz.title,
+                subject: response.quiz.metadata?.subject,
+                questions: response.quiz.questions?.length || 0
+              })
+            })
+            // Ignore failures here; user still gets generated quiz locally
+            await resp.json().catch(() => null)
+          } catch {}
+        }
         onClose()
       } else {
         console.error('Quiz generation failed:', response.error)
