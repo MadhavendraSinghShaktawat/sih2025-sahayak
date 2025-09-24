@@ -18,6 +18,7 @@ export default function Home() {
           <AnimatedThemeToggler key="theme" />,
         ]}
       />
+
       <div className="w-full max-w-xl mx-auto mt-10 rounded-2xl border bg-white shadow-sm p-8">
         <h1 className="text-2xl font-bold text-gray-900 mb-6 text-center">
           Welcome to Sahayak
