@@ -18,7 +18,9 @@
       "notStudent": "This account is not a student.",
       "accountCreated": "Account created. Please verify your email, then sign in.",
       "helper": "Invited by a teacher? Use your email and password.",
-      "teacherCta": "Sign in as teacher"
+      "teacherCta": "Sign in as teacher",
+      "noAccount": "Don’t have an account?",
+      "haveAccount": "Already have an account?"
     },
     "teacher": {
       "signinTitle": "Teacher Sign In",
@@ -29,7 +31,13 @@
       "createTeacher": "Create teacher account"
     },
     "common": {
-      "pleaseWait": "Please wait..."
+      "pleaseWait": "Please wait...",
+      "forgotPassword": "Forgot password?",
+      "orContinueWith": "Or continue with",
+      "agree": "By continuing, you agree to our",
+      "termsOfService": "Terms of Service",
+      "and": "and",
+      "privacyPolicy": "Privacy Policy"
     }
   }
 }

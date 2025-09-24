@@ -56,8 +56,8 @@ interface NavbarProps {
 
 const Navbar = ({
   logo = {
-    url: "https://www.shadcnblocks.com",
-    src: "https://deifkwefumgah.cloudfront.net/shadcnblocks/block/logos/shadcnblockscom-icon.svg",
+    url: "https://res.cloudinary.com/dmkku8emk/image/upload/v1757170537/classing_qt41n0.png",
+    src: "https://res.cloudinary.com/dmkku8emk/image/upload/v1757170537/classing_qt41n0.png",
     alt: "logo",
     title: "Sahayak",
   },
