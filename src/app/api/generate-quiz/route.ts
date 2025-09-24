@@ -19,7 +19,8 @@ export async function POST(request: NextRequest) {
       auth: { autoRefreshToken: false, persistSession: false },
       global: { headers: { Authorization: `Bearer ${token}` } },
     });
-    const { data: userData, error: authError } = await supabase.auth.getUser(token);
+    const { data: userData, error: authError } =
+      await supabase.auth.getUser(token);
     const user = userData?.user;
     if (authError || !user) {
       return NextResponse.json({ error: "Invalid token" }, { status: 401 });
@@ -167,7 +168,8 @@ IMPORTANT:
         language: parsedQuizData.metadata?.language || "English",
         difficulty: parsedQuizData.metadata?.difficulty || "medium",
         estimatedTime: parsedQuizData.metadata?.estimatedTime || 10,
-        createdAt: parsedQuizData.metadata?.createdAt || new Date().toISOString(),
+        createdAt:
+          parsedQuizData.metadata?.createdAt || new Date().toISOString(),
         generatedBy: "gemini",
       },
     };
