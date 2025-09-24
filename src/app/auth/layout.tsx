@@ -1,8 +1,8 @@
 "use client";
 
 import React from "react";
-import { Navbar } from "@/components/blocks/navbar";
-import LanguageSwitcher from "@/components/blocks/language-switcher";
+import { Navbar } from "@/components/common/navbar";
+import LanguageSwitcher from "@/components/common/language-switcher";
 import { AnimatedThemeToggler } from "@/components/ui/animated-theme-toggler";
 
 export default function AuthLayout({

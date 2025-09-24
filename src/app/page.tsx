@@ -3,8 +3,8 @@
 import React from "react";
 import Link from "next/link";
 import MovingBorderButton from "@/components/blocks/moving-border-button";
-import { Navbar } from "@/components/blocks/navbar";
-import LanguageSwitcher from "@/components/blocks/language-switcher";
+import { Navbar } from "@/components/common/navbar";
+import LanguageSwitcher from "@/components/common/language-switcher";
 import { AnimatedThemeToggler } from "@/components/ui/animated-theme-toggler";
 
 export default function Home() {
