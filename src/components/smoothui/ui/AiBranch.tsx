@@ -1,7 +1,7 @@
-"use client"
+"use client";
 
-import type { HTMLAttributes, ReactElement, ReactNode } from "react"
-import { createContext, useContext, useEffect, useMemo, useState } from "react"
+import type { HTMLAttributes, ReactElement, ReactNode } from "react";
+import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import {
   ChevronLeftIcon,
   ChevronRightIcon,
@@ -9,34 +9,34 @@ import {
   Copy,
   MessageSquare,
   Pencil,
-} from "lucide-react"
-import { motion } from "motion/react"
+} from "lucide-react";
+import { motion } from "motion/react";
 
-import { cn } from "@/lib/utils/cn"
+import { cn } from "@/lib/utils/cn";
 
 type AIBranchContextType = {
-  currentBranch: number
-  totalBranches: number
-  goToPrevious: () => void
-  goToNext: () => void
-  branches: ReactElement[]
-  setBranches: (branches: ReactElement[]) => void
-}
+  currentBranch: number;
+  totalBranches: number;
+  goToPrevious: () => void;
+  goToNext: () => void;
+  branches: ReactElement[];
+  setBranches: (branches: ReactElement[]) => void;
+};
 
-const AIBranchContext = createContext<AIBranchContextType | null>(null)
+const AIBranchContext = createContext<AIBranchContextType | null>(null);
 
 const useAIBranch = () => {
-  const context = useContext(AIBranchContext)
+  const context = useContext(AIBranchContext);
   if (!context) {
-    throw new Error("AIBranch components must be used within AIBranch")
+    throw new Error("AIBranch components must be used within AIBranch");
   }
-  return context
-}
+  return context;
+};
 
 export type AIBranchProps = HTMLAttributes<HTMLDivElement> & {
-  defaultBranch?: number
-  onBranchChange?: (branchIndex: number) => void
-}
+  defaultBranch?: number;
+  onBranchChange?: (branchIndex: number) => void;
+};
 
 export const AIBranch = ({
   defaultBranch = 0,
@@ -44,25 +44,25 @@ export const AIBranch = ({
   className,
   ...props
 }: AIBranchProps) => {
-  const [currentBranch, setCurrentBranch] = useState(defaultBranch)
-  const [branches, setBranches] = useState<ReactElement[]>([])
+  const [currentBranch, setCurrentBranch] = useState(defaultBranch);
+  const [branches, setBranches] = useState<ReactElement[]>([]);
 
   const handleBranchChange = (newBranch: number) => {
-    setCurrentBranch(newBranch)
-    onBranchChange?.(newBranch)
-  }
+    setCurrentBranch(newBranch);
+    onBranchChange?.(newBranch);
+  };
 
   const goToPrevious = () => {
     const newBranch =
-      currentBranch > 0 ? currentBranch - 1 : branches.length - 1
-    handleBranchChange(newBranch)
-  }
+      currentBranch > 0 ? currentBranch - 1 : branches.length - 1;
+    handleBranchChange(newBranch);
+  };
 
   const goToNext = () => {
     const newBranch =
-      currentBranch < branches.length - 1 ? currentBranch + 1 : 0
-    handleBranchChange(newBranch)
-  }
+      currentBranch < branches.length - 1 ? currentBranch + 1 : 0;
+    handleBranchChange(newBranch);
+  };
 
   const contextValue: AIBranchContextType = {
     currentBranch,
@@ -71,7 +71,7 @@ export const AIBranch = ({
     goToNext,
     branches,
     setBranches,
-  }
+  };
 
   return (
     <AIBranchContext.Provider value={contextValue}>
@@ -80,26 +80,26 @@ export const AIBranch = ({
         {...props}
       />
     </AIBranchContext.Provider>
-  )
-}
+  );
+};
 
 export type AIBranchMessagesProps = {
-  children: ReactElement | ReactElement[]
-}
+  children: ReactElement | ReactElement[];
+};
 
 export const AIBranchMessages = ({ children }: AIBranchMessagesProps) => {
-  const { currentBranch, setBranches, branches } = useAIBranch()
+  const { currentBranch, setBranches, branches } = useAIBranch();
   const childrenArray = useMemo(
     () => (Array.isArray(children) ? children : [children]),
     [children]
-  )
+  );
 
   // Use useEffect to update branches when they change
   useEffect(() => {
     if (branches.length !== childrenArray.length) {
-      setBranches(childrenArray)
+      setBranches(childrenArray);
     }
-  }, [childrenArray, branches, setBranches])
+  }, [childrenArray, branches, setBranches]);
 
   return childrenArray.map((branch, index) => (
     <motion.div
@@ -123,23 +123,23 @@ export const AIBranchMessages = ({ children }: AIBranchMessagesProps) => {
     >
       {branch}
     </motion.div>
-  ))
-}
+  ));
+};
 
 export type AIBranchSelectorProps = HTMLAttributes<HTMLDivElement> & {
-  from: "user" | "assistant"
-}
+  from: "user" | "assistant";
+};
 
 export const AIBranchSelector = ({
   className,
   from,
   ...props
 }: AIBranchSelectorProps) => {
-  const { totalBranches } = useAIBranch()
+  const { totalBranches } = useAIBranch();
 
   // Don't render if there's only one branch
   if (totalBranches <= 1) {
-    return null
+    return null;
   }
 
   return (
@@ -151,19 +151,19 @@ export const AIBranchSelector = ({
       )}
       {...props}
     />
-  )
-}
+  );
+};
 
 export type AIBranchPreviousProps = {
-  className?: string
-  children?: ReactNode
-}
+  className?: string;
+  children?: ReactNode;
+};
 
 export const AIBranchPrevious = ({
   className,
   children,
 }: AIBranchPreviousProps) => {
-  const { goToPrevious, totalBranches } = useAIBranch()
+  const { goToPrevious, totalBranches } = useAIBranch();
 
   return (
     <motion.button
@@ -184,16 +184,16 @@ export const AIBranchPrevious = ({
     >
       {children ?? <ChevronLeftIcon size={14} />}
     </motion.button>
-  )
-}
+  );
+};
 
 export type AIBranchNextProps = {
-  className?: string
-  children?: ReactNode
-}
+  className?: string;
+  children?: ReactNode;
+};
 
 export const AIBranchNext = ({ className, children }: AIBranchNextProps) => {
-  const { goToNext, totalBranches } = useAIBranch()
+  const { goToNext, totalBranches } = useAIBranch();
 
   return (
     <motion.button
@@ -214,15 +214,15 @@ export const AIBranchNext = ({ className, children }: AIBranchNextProps) => {
     >
       {children ?? <ChevronRightIcon size={14} />}
     </motion.button>
-  )
-}
+  );
+};
 
 export type AIBranchPageProps = {
-  className?: string
-}
+  className?: string;
+};
 
 export const AIBranchPage = ({ className }: AIBranchPageProps) => {
-  const { currentBranch, totalBranches } = useAIBranch()
+  const { currentBranch, totalBranches } = useAIBranch();
 
   return (
     <span
@@ -233,25 +233,25 @@ export const AIBranchPage = ({ className }: AIBranchPageProps) => {
     >
       {currentBranch + 1} of {totalBranches}
     </span>
-  )
-}
+  );
+};
 
 // Updated interface for conversation branches
 export interface AIBranchData {
-  id: string
-  userMessage: string
-  aiResponse: string
-  timestamp: Date
-  isActive: boolean
+  id: string;
+  userMessage: string;
+  aiResponse: string;
+  timestamp: Date;
+  isActive: boolean;
 }
 
 // Export the type alias for backward compatibility
-export type AIBranch = AIBranchData
+export type AIBranch = AIBranchData;
 
 interface LegacyAiBranchProps {
-  branches: AIBranchData[]
-  onBranchSelect: (branchId: string) => void
-  className?: string
+  branches: AIBranchData[];
+  onBranchSelect: (branchId: string) => void;
+  className?: string;
 }
 
 // Updated legacy component to show conversation branches
@@ -260,29 +260,29 @@ export function LegacyAiBranch({
   onBranchSelect,
   className,
 }: LegacyAiBranchProps) {
-  const [isExpanded, setIsExpanded] = useState(false)
+  const [isExpanded, setIsExpanded] = useState(false);
   const [currentBranchIndex, setCurrentBranchIndex] = useState(() =>
     branches.findIndex((branch) => branch.isActive)
-  )
+  );
 
-  const activeBranch = branches[currentBranchIndex]
+  const activeBranch = branches[currentBranchIndex];
   const inactiveBranches = branches.filter(
     (_, index) => index !== currentBranchIndex
-  )
+  );
 
   const goToPrevious = () => {
     const newIndex =
-      currentBranchIndex > 0 ? currentBranchIndex - 1 : branches.length - 1
-    setCurrentBranchIndex(newIndex)
-    onBranchSelect(branches[newIndex].id)
-  }
+      currentBranchIndex > 0 ? currentBranchIndex - 1 : branches.length - 1;
+    setCurrentBranchIndex(newIndex);
+    onBranchSelect(branches[newIndex].id);
+  };
 
   const goToNext = () => {
     const newIndex =
-      currentBranchIndex < branches.length - 1 ? currentBranchIndex + 1 : 0
-    setCurrentBranchIndex(newIndex)
-    onBranchSelect(branches[newIndex].id)
-  }
+      currentBranchIndex < branches.length - 1 ? currentBranchIndex + 1 : 0;
+    setCurrentBranchIndex(newIndex);
+    onBranchSelect(branches[newIndex].id);
+  };
 
   return (
     <div className={cn("w-full max-w-2xl", className)}>
@@ -394,11 +394,11 @@ export function LegacyAiBranch({
         </motion.div>
       )}
     </div>
-  )
+  );
 }
 
 // Export the legacy component as the default for backward compatibility
-export { LegacyAiBranch as AiBranch }
+export { LegacyAiBranch as AiBranch };
 
 // Add default export for lazy loading
-export default LegacyAiBranch
+export default LegacyAiBranch;

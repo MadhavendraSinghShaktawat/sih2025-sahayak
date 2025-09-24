@@ -1,29 +1,27 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import { supabase } from "@/lib/supabaseClient"
-import { retry } from "@/lib/retry"
+import * as React from "react";
+import { supabase } from "@/lib/supabaseClient";
+import { retry } from "@/lib/retry";
 import {
   Conversation,
   ConversationContent,
   ConversationScrollButton,
 } from "@/components/ui/shadcn-io/ai/conversation"
 import { Message, MessageAvatar, MessageContent } from "@/components/ui/shadcn-io/ai/message"
+import ButtonCopy from "@/components/smoothui/ui/ButtonCopy"
 import { QuizDisplay } from "@/components/QuizDisplay"
 import { QuizGenerationModal } from "@/components/smoothui/ui/QuizGenerationModal"
 import { SelectQuizModal } from "@/components/smoothui/ui/SelectQuizModal"
 import BasicDropdown from "@/components/smoothui/ui/BasicDropdown"
 import { BookOpen, UserPlus } from "lucide-react"
-import ButtonCopy from "@/components/smoothui/ui/ButtonCopy"
 
 type ChatMessage = {
   id: string
-  text?: string
+  text: string
   name: string
   avatar?: string
   role: "teacher" | "student"
-  kind?: "text" | "quiz"
-  data?: any
 }
 
 export function ChatRoom({
@@ -35,13 +33,13 @@ export function ChatRoom({
   onEndSession,
   otp,
 }: {
-  roomId: string
-  role: "teacher" | "student"
-  name?: string
-  avatar?: string
-  onlineCount?: number
-  onEndSession?: () => void
-  otp?: string
+  roomId: string;
+  role: "teacher" | "student";
+  name?: string;
+  avatar?: string;
+  onlineCount?: number;
+  onEndSession?: () => void;
+  otp?: string;
 }) {
   const [messages, setMessages] = React.useState<ChatMessage[]>([])
   const [quizModal, setQuizModal] = React.useState<{ open: boolean; quizId?: string; quiz?: any }>(() => ({ open: false }))
@@ -55,30 +53,30 @@ export function ChatRoom({
 
   // Auto-scroll to bottom when messages change
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
-  }
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
 
   React.useEffect(() => {
-    scrollToBottom()
-  }, [messages])
+    scrollToBottom();
+  }, [messages]);
 
   // Load initial messages and set up real-time
   React.useEffect(() => {
-    if (!roomId) return
+    if (!roomId) return;
 
     async function loadMessages() {
       try {
-        setLoading(true)
+        setLoading(true);
         const data = await retry(async () => {
           const result = await supabase
             .from("messages")
             .select("id, text, name, role, kind, data, created_at")
             .eq("room_id", roomId)
             .order("created_at", { ascending: true })
-            .limit(50)
-          if (result.error) throw result.error
-          return result.data
-        })
+            .limit(50);
+          if (result.error) throw result.error;
+          return result.data;
+        });
 
         // Convert database messages to ChatMessage format
         const dbMessages: ChatMessage[] = (data || []).map((msg: any) => ({
@@ -86,23 +84,21 @@ export function ChatRoom({
           text: msg.text,
           name: msg.name,
           role: msg.role as "teacher" | "student",
-          kind: (msg.kind || 'text') as any,
-          data: msg.data || undefined,
         }))
 
-        setMessages(dbMessages)
+        setMessages(dbMessages);
       } catch (err) {
-        console.error("Failed to load messages:", err)
+        console.error("Failed to load messages:", err);
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
     }
 
-    loadMessages()
+    loadMessages();
 
     // Set up real-time channel for new messages
-    const channel = supabase.channel(`room:${roomId}`)
-    channelRef.current = channel
+    const channel = supabase.channel(`room:${roomId}`);
+    channelRef.current = channel;
 
     // Listen for new messages via postgres_changes
     channel
@@ -115,38 +111,36 @@ export function ChatRoom({
           filter: `room_id=eq.${roomId}`,
         },
         (payload) => {
-          console.log("Real-time message received:", payload)
-          const newMsg = payload.new as any
+          console.log("Real-time message received:", payload);
+          const newMsg = payload.new as any;
           const chatMsg: ChatMessage = {
             id: newMsg.id,
             text: newMsg.text,
             name: newMsg.name,
             role: newMsg.role as "teacher" | "student",
-            kind: (newMsg.kind || 'text') as any,
-            data: newMsg.data || undefined,
           }
           setMessages((prev) => {
             // Avoid duplicates by checking if message already exists
-            const exists = prev.some(msg => msg.id === chatMsg.id)
-            if (exists) return prev
-            return [...prev, chatMsg]
-          })
+            const exists = prev.some((msg) => msg.id === chatMsg.id);
+            if (exists) return prev;
+            return [...prev, chatMsg];
+          });
         }
       )
       .subscribe((status) => {
-        console.log("Real-time subscription status:", status)
-      })
+        console.log("Real-time subscription status:", status);
+      });
 
     return () => {
-      channelRef.current = null
-      supabase.removeChannel(channel)
-    }
-  }, [roomId])
+      channelRef.current = null;
+      supabase.removeChannel(channel);
+    };
+  }, [roomId]);
 
   // Fallback: Refresh messages every 3 seconds if real-time fails
   React.useEffect(() => {
-    if (!roomId || loading) return
-    
+    if (!roomId || loading) return;
+
     const interval = setInterval(async () => {
       try {
         const data = await supabase
@@ -154,74 +148,77 @@ export function ChatRoom({
           .select("id, text, name, role, kind, data, created_at")
           .eq("room_id", roomId)
           .order("created_at", { ascending: true })
-          .limit(50)
-        
+          .limit(50);
+
         if (data.data) {
           const dbMessages: ChatMessage[] = data.data.map((msg: any) => ({
             id: msg.id,
             text: msg.text,
             name: msg.name,
             role: msg.role as "teacher" | "student",
-            kind: (msg.kind || 'text') as any,
-            data: msg.data || undefined,
           }))
           
           setMessages(prev => {
             // Only update if we have new messages
             if (dbMessages.length > prev.length) {
-              console.log("Fallback: Found new messages via polling")
-              return dbMessages
+              console.log("Fallback: Found new messages via polling");
+              return dbMessages;
             }
-            return prev
-          })
+            return prev;
+          });
         }
       } catch (err) {
-        console.error("Fallback polling failed:", err)
+        console.error("Fallback polling failed:", err);
       }
-    }, 3000)
+    }, 3000);
 
-    return () => clearInterval(interval)
-  }, [roomId, loading])
+    return () => clearInterval(interval);
+  }, [roomId, loading]);
 
   async function sendMessage() {
-    const text = input.trim()
-    if (!text) return
-    const who = displayName || (role === "teacher" ? "Teacher" : "Student")
+    const text = input.trim();
+    if (!text) return;
+    const who = displayName || (role === "teacher" ? "Teacher" : "Student");
 
     try {
       // Get current user for sender_id
-      const { data: { user } } = await supabase.auth.getUser()
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
       if (!user) {
-        console.error("User not authenticated")
-        return
+        console.error("User not authenticated");
+        return;
       }
 
       // Generate a stable client id in case RLS prevents returning rows
       const messageId =
-        (typeof globalThis !== "undefined" && (globalThis as any).crypto &&
+        (typeof globalThis !== "undefined" &&
+          (globalThis as any).crypto &&
           typeof (globalThis as any).crypto.randomUUID === "function" &&
           (globalThis as any).crypto.randomUUID()) ||
-        `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`
+        `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
 
       // Insert message to database
       await retry(async () => {
-        const result = await supabase
-          .from("messages")
-          .insert({
-            id: messageId,
-            room_id: roomId,
-            sender_id: user.id,
-            name: who,
-            role: role,
-            text: text,
-          })
+        const result = await supabase.from("messages").insert({
+          id: messageId,
+          room_id: roomId,
+          sender_id: user.id,
+          name: who,
+          role: role,
+          text: text,
+        });
         if (result.error) {
-          console.error("Failed to insert message:", result.error)
-          throw result.error
+          console.error("Failed to insert message:", result.error);
+          throw result.error;
         }
-        console.log("Message inserted successfully:", { messageId, roomId, text })
-        return true
-      })
+        console.log("Message inserted successfully:", {
+          messageId,
+          roomId,
+          text,
+        });
+        return true;
+      });
 
       // Optimistically add to local state (will be confirmed by real-time update)
       const msg: ChatMessage = {
@@ -230,19 +227,19 @@ export function ChatRoom({
         name: who,
         avatar,
         role,
-      }
-      setMessages((prev) => [...prev, msg])
-      setInput("")
+      };
+      setMessages((prev) => [...prev, msg]);
+      setInput("");
     } catch (err) {
-      console.error("Failed to send message:", err)
+      console.error("Failed to send message:", err);
       // Could add toast notification here
     }
   }
 
   function onKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
     if (e.key === "Enter" && !e.shiftKey) {
-      const trimmed = input.trim()
-      if (role === 'teacher' && trimmed.toLowerCase().startsWith('/quiz')) {
+      const trimmed = input.trim().toLowerCase()
+      if (role === "teacher" && trimmed.startsWith("/quiz")) {
         e.preventDefault()
         setShowQuizModal(true)
         return
@@ -258,7 +255,9 @@ export function ChatRoom({
       <div className="bg-gradient-to-r from-blue-500 to-blue-600 px-6 py-4">
         <div className="flex items-center justify-between">
           <div>
-            <h3 className="text-white font-semibold text-lg">Teaching Session</h3>
+            <h3 className="text-white font-semibold text-lg">
+              Teaching Session
+            </h3>
             <div className="flex items-center gap-4 mt-1">
               <p className="text-blue-100 text-sm">
                 {role === "teacher" ? "Teaching Mode" : "Student Mode"}
@@ -269,7 +268,7 @@ export function ChatRoom({
                   <ButtonCopy
                     onCopy={async () => {
                       try {
-                        await navigator.clipboard.writeText(otp)
+                        await navigator.clipboard.writeText(otp);
                       } catch {}
                     }}
                     className="ml-1 border-white/20 bg-white/10 text-white hover:bg-white/20"
@@ -320,41 +319,7 @@ export function ChatRoom({
               <>
                 {messages.map((m) => (
                   <Message key={m.id} from={m.role === "teacher" ? "user" : "assistant"}>
-                    {m.kind === 'quiz' ? (
-                      <MessageContent className="text-gray-900">
-                        <div className={`rounded-xl border p-4 shadow-sm hover:shadow-md transition-shadow ${m.role === 'teacher' ? 'bg-blue-50/60 border-blue-200' : 'bg-white border-gray-200'}`}>
-                          <div className="font-semibold text-gray-900">{m.data?.title || 'Quiz'}</div>
-                          <div className="text-xs text-gray-600 mb-3 mt-1">
-                            {m.data?.subject ? `Subject: ${m.data.subject}` : null}
-                            {m.data?.questions ? ` • Questions: ${m.data.questions}` : null}
-                          </div>
-                          <button
-                            className="text-sm rounded-md bg-blue-600 text-white px-3 py-1 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400 disabled:opacity-50"
-                            onClick={async () => {
-                              // Open modal and fetch quiz by id
-                              const id = m.data?.quizId
-                              if (!id) return
-                              try {
-                                const { data: { session } } = await supabase.auth.getSession()
-                                const resp = await fetch(`/api/quizzes?id=${id}`, {
-                                  headers: { Authorization: `Bearer ${session?.access_token || ''}` }
-                                })
-                                const json = await resp.json()
-                                if (json.success) {
-                                  setQuizModal({ open: true, quizId: id, quiz: json.quiz })
-                                }
-                              } catch (e) {
-                                console.error('Failed to open quiz', e)
-                              }
-                            }}
-                          >
-                            Open Quiz
-                          </button>
-                        </div>
-                      </MessageContent>
-                    ) : (
-                      <MessageContent className={`text-gray-900 rounded-lg border px-3 py-2 ${m.role === 'teacher' ? 'bg-blue-50/60 border-blue-200' : 'bg-white border-gray-200'}`}>{m.text}</MessageContent>
-                    )}
+                    <MessageContent className="text-gray-800">{m.text}</MessageContent>
                     <MessageAvatar name={m.name} src={m.avatar || ""} />
                   </Message>
                 ))}
@@ -427,17 +392,21 @@ export function ChatRoom({
               onKeyDown={onKeyDown}
               className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none resize-none"
             />
-            <button 
+            <button
               className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
               onClick={sendMessage}
-              disabled={!input.trim() || (role === "student" && !displayName.trim())}
+              disabled={
+                !input.trim() || (role === "student" && !displayName.trim())
+              }
             >
               Send
             </button>
           </div>
         </div>
         {role === "student" && !displayName.trim() && (
-          <p className="text-xs text-gray-500 mt-2">Please enter your name to start chatting</p>
+          <p className="text-xs text-gray-500 mt-2">
+            Please enter your name to start chatting
+          </p>
         )}
         {/* Quiz Modal trigger from dropdown or /quiz */}
         <QuizGenerationModal
@@ -454,9 +423,7 @@ export function ChatRoom({
         />
       </div>
     </div>
-  )
+  );
 }
 
-export default ChatRoom
-
-
+export default ChatRoom;

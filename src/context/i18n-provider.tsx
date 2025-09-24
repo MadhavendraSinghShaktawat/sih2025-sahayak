@@ -9,7 +9,9 @@ type I18nProviderProps = {
   children: React.ReactNode;
 };
 
-export function I18nProvider({ children }: I18nProviderProps): React.ReactElement {
+export function I18nProvider({
+  children,
+}: I18nProviderProps): React.ReactElement {
   return <I18nextProvider i18n={i18nInstance}>{children}</I18nextProvider>;
 }
 
@@ -32,5 +34,3 @@ export function useI18n(): {
   }
   return { t, locale: i18n.resolvedLanguage ?? i18n.language, changeLocale };
 }
-
-

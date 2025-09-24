@@ -1,25 +1,25 @@
-"use client"
+"use client";
 
-import { ReactNode, useCallback, useState } from "react"
-import { Check, Copy, LoaderCircle } from "lucide-react"
-import { AnimatePresence, motion } from "motion/react"
+import { ReactNode, useCallback, useState } from "react";
+import { Check, Copy, LoaderCircle } from "lucide-react";
+import { AnimatePresence, motion } from "motion/react";
 
 export interface ButtonCopyProps {
-  onCopy?: () => Promise<void> | void
-  idleIcon?: ReactNode
-  loadingIcon?: ReactNode
-  successIcon?: ReactNode
-  className?: string
-  duration?: number
-  loadingDuration?: number
-  disabled?: boolean
+  onCopy?: () => Promise<void> | void;
+  idleIcon?: ReactNode;
+  loadingIcon?: ReactNode;
+  successIcon?: ReactNode;
+  className?: string;
+  duration?: number;
+  loadingDuration?: number;
+  disabled?: boolean;
 }
 
 const defaultIcons = {
   idle: <Copy size={16} />,
   loading: <LoaderCircle size={16} className="animate-spin" />,
   success: <Check size={16} />,
-}
+};
 
 export default function ButtonCopy({
   onCopy,
@@ -33,24 +33,24 @@ export default function ButtonCopy({
 }: ButtonCopyProps) {
   const [buttonState, setButtonState] = useState<
     "idle" | "loading" | "success"
-  >("idle")
+  >("idle");
 
   const handleClick = useCallback(async () => {
-    setButtonState("loading")
-    if (onCopy) await onCopy()
+    setButtonState("loading");
+    if (onCopy) await onCopy();
     setTimeout(() => {
-      setButtonState("success")
-    }, loadingDuration)
+      setButtonState("success");
+    }, loadingDuration);
     setTimeout(() => {
-      setButtonState("idle")
-    }, loadingDuration + duration)
-  }, [onCopy, loadingDuration, duration])
+      setButtonState("idle");
+    }, loadingDuration + duration);
+  }, [onCopy, loadingDuration, duration]);
 
   const icons = {
     idle: idleIcon,
     loading: loadingIcon,
     success: successIcon,
-  }
+  };
 
   return (
     <div className="flex justify-center">
@@ -74,5 +74,5 @@ export default function ButtonCopy({
         </AnimatePresence>
       </button>
     </div>
-  )
+  );
 }

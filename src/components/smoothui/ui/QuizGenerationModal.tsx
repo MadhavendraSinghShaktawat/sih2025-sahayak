@@ -1,18 +1,18 @@
-"use client"
+"use client";
 
-import React from "react"
-import { motion, AnimatePresence } from "framer-motion"
-import { X, Upload, FileText, Image, Send, Settings } from "lucide-react"
-import { cn } from "@/lib/utils"
-import { useQuizGeneration } from "@/hooks/useQuizGeneration"
-import { QuizOptions } from "@/lib/llm/types"
+import React from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { X, Upload, FileText, Image, Send, Settings } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { useQuizGeneration } from "@/hooks/useQuizGeneration";
+import { QuizOptions } from "@/lib/llm/types";
 
 interface QuizGenerationModalProps {
-  isOpen: boolean
-  onClose: () => void
-  onQuizGenerated: (quiz: any) => void // Will be called when quiz is generated
-  command: string
-  roomId?: string // If provided, will post to chat as quiz message
+  isOpen: boolean;
+  onClose: () => void;
+  onQuizGenerated: (quiz: any) => void; // Will be called when quiz is generated
+  command: string;
+  roomId?: string; // If provided, will post to chat as quiz message
 }
 
 export function QuizGenerationModal({
@@ -20,86 +20,89 @@ export function QuizGenerationModal({
   onClose,
   onQuizGenerated,
   command,
-  roomId
+  roomId,
 }: QuizGenerationModalProps) {
-  const [content, setContent] = React.useState("")
-  const [contentType, setContentType] = React.useState<'text' | 'pdf' | 'image'>('text')
-  const [dragOver, setDragOver] = React.useState(false)
-  const [showAdvancedOptions, setShowAdvancedOptions] = React.useState(false)
+  const [content, setContent] = React.useState("");
+  const [contentType, setContentType] = React.useState<
+    "text" | "pdf" | "image"
+  >("text");
+  const [dragOver, setDragOver] = React.useState(false);
+  const [showAdvancedOptions, setShowAdvancedOptions] = React.useState(false);
   const [quizOptions, setQuizOptions] = React.useState<QuizOptions>({
-    subject: 'General',
-    class: 'Any',
-    language: 'English',
-    difficulty: 'medium',
-    type: 'mcq',
-    questionCount: 5
-  })
+    subject: "General",
+    class: "Any",
+    language: "English",
+    difficulty: "medium",
+    type: "mcq",
+    questionCount: 5,
+  });
 
-  const { generateQuiz, isGenerating, error, availableProviders } = useQuizGeneration()
+  const { generateQuiz, isGenerating, error, availableProviders } =
+    useQuizGeneration();
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!content.trim()) return
+    e.preventDefault();
+    if (!content.trim()) return;
 
     try {
-      const response = await generateQuiz(content, contentType, quizOptions)
-      
+      const response = await generateQuiz(content, contentType, quizOptions);
+
       if (response.success && response.quiz) {
-        onQuizGenerated(response.quiz)
+        onQuizGenerated(response.quiz);
 
         // Optional: post to chat if roomId provided (teacher only; enforced server-side)
         if (roomId) {
           try {
             const resp = await fetch(`/api/rooms/${roomId}/post-quiz`, {
-              method: 'POST',
+              method: "POST",
               headers: {
-                'Content-Type': 'application/json'
+                "Content-Type": "application/json",
               },
               body: JSON.stringify({
                 quizId: response.quiz.id,
                 title: response.quiz.title,
                 subject: response.quiz.metadata?.subject,
-                questions: response.quiz.questions?.length || 0
-              })
-            })
+                questions: response.quiz.questions?.length || 0,
+              }),
+            });
             // Ignore failures here; user still gets generated quiz locally
-            await resp.json().catch(() => null)
+            await resp.json().catch(() => null);
           } catch {}
         }
-        onClose()
+        onClose();
       } else {
-        console.error('Quiz generation failed:', response.error)
+        console.error("Quiz generation failed:", response.error);
       }
     } catch (error) {
-      console.error('Quiz generation failed:', error)
+      console.error("Quiz generation failed:", error);
     }
-  }
+  };
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (!file) return
+    const file = e.target.files?.[0];
+    if (!file) return;
 
     // For now, just read as text (we'll handle PDF/image processing later)
-    const reader = new FileReader()
+    const reader = new FileReader();
     reader.onload = (event) => {
-      setContent(event.target?.result as string || "")
-    }
-    reader.readAsText(file)
-  }
+      setContent((event.target?.result as string) || "");
+    };
+    reader.readAsText(file);
+  };
 
   const handleDrop = (e: React.DragEvent) => {
-    e.preventDefault()
-    setDragOver(false)
-    
-    const file = e.dataTransfer.files[0]
-    if (!file) return
+    e.preventDefault();
+    setDragOver(false);
 
-    const reader = new FileReader()
+    const file = e.dataTransfer.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
     reader.onload = (event) => {
-      setContent(event.target?.result as string || "")
-    }
-    reader.readAsText(file)
-  }
+      setContent((event.target?.result as string) || "");
+    };
+    reader.readAsText(file);
+  };
 
   return (
     <AnimatePresence>
@@ -126,7 +129,10 @@ export function QuizGenerationModal({
                   Generate Quiz
                 </h2>
                 <p className="text-sm text-gray-600 mt-1">
-                  Command: <code className="bg-gray-100 px-2 py-1 rounded text-xs">{command}</code>
+                  Command:{" "}
+                  <code className="bg-gray-100 px-2 py-1 rounded text-xs">
+                    {command}
+                  </code>
                 </p>
               </div>
               <button
@@ -146,9 +152,9 @@ export function QuizGenerationModal({
                 </label>
                 <div className="flex gap-3">
                   {[
-                    { type: 'text', label: 'Text', icon: FileText },
-                    { type: 'pdf', label: 'PDF', icon: Upload },
-                    { type: 'image', label: 'Image', icon: Image }
+                    { type: "text", label: "Text", icon: FileText },
+                    { type: "pdf", label: "PDF", icon: Upload },
+                    { type: "image", label: "Image", icon: Image },
                   ].map(({ type, label, icon: Icon }) => (
                     <button
                       key={type}
@@ -177,10 +183,12 @@ export function QuizGenerationModal({
                 >
                   <Settings className="w-4 h-4" />
                   Advanced Options
-                  <span className={cn(
-                    "transition-transform",
-                    showAdvancedOptions ? "rotate-180" : "rotate-0"
-                  )}>
+                  <span
+                    className={cn(
+                      "transition-transform",
+                      showAdvancedOptions ? "rotate-180" : "rotate-0"
+                    )}
+                  >
                     ▼
                   </span>
                 </button>
@@ -189,33 +197,56 @@ export function QuizGenerationModal({
               {/* Advanced Options */}
               {showAdvancedOptions && (
                 <div className="mb-6 p-4 bg-gray-50 rounded-lg">
-                  <h3 className="text-sm font-medium text-gray-700 mb-3">Quiz Configuration</h3>
+                  <h3 className="text-sm font-medium text-gray-700 mb-3">
+                    Quiz Configuration
+                  </h3>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-xs font-medium text-gray-600 mb-1">Subject</label>
+                      <label className="block text-xs font-medium text-gray-600 mb-1">
+                        Subject
+                      </label>
                       <input
                         type="text"
-                        value={quizOptions.subject || ''}
-                        onChange={(e) => setQuizOptions(prev => ({ ...prev, subject: e.target.value }))}
+                        value={quizOptions.subject || ""}
+                        onChange={(e) =>
+                          setQuizOptions((prev) => ({
+                            ...prev,
+                            subject: e.target.value,
+                          }))
+                        }
                         className="w-full px-3 py-2 text-sm border border-gray-200 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                         placeholder="e.g., Mathematics"
                       />
                     </div>
                     <div>
-                      <label className="block text-xs font-medium text-gray-600 mb-1">Class</label>
+                      <label className="block text-xs font-medium text-gray-600 mb-1">
+                        Class
+                      </label>
                       <input
                         type="text"
-                        value={quizOptions.class || ''}
-                        onChange={(e) => setQuizOptions(prev => ({ ...prev, class: e.target.value }))}
+                        value={quizOptions.class || ""}
+                        onChange={(e) =>
+                          setQuizOptions((prev) => ({
+                            ...prev,
+                            class: e.target.value,
+                          }))
+                        }
                         className="w-full px-3 py-2 text-sm border border-gray-200 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                         placeholder="e.g., Grade 6"
                       />
                     </div>
                     <div>
-                      <label className="block text-xs font-medium text-gray-600 mb-1">Difficulty</label>
+                      <label className="block text-xs font-medium text-gray-600 mb-1">
+                        Difficulty
+                      </label>
                       <select
-                        value={quizOptions.difficulty || 'medium'}
-                        onChange={(e) => setQuizOptions(prev => ({ ...prev, difficulty: e.target.value as any }))}
+                        value={quizOptions.difficulty || "medium"}
+                        onChange={(e) =>
+                          setQuizOptions((prev) => ({
+                            ...prev,
+                            difficulty: e.target.value as any,
+                          }))
+                        }
                         className="w-full px-3 py-2 text-sm border border-gray-200 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       >
                         <option value="easy">Easy</option>
@@ -224,22 +255,34 @@ export function QuizGenerationModal({
                       </select>
                     </div>
                     <div>
-                      <label className="block text-xs font-medium text-gray-600 mb-1">Question Count</label>
+                      <label className="block text-xs font-medium text-gray-600 mb-1">
+                        Question Count
+                      </label>
                       <input
                         type="number"
                         min="1"
                         max="20"
                         value={quizOptions.questionCount || 5}
-                        onChange={(e) => setQuizOptions(prev => ({ ...prev, questionCount: parseInt(e.target.value) }))}
+                        onChange={(e) =>
+                          setQuizOptions((prev) => ({
+                            ...prev,
+                            questionCount: parseInt(e.target.value),
+                          }))
+                        }
                         className="w-full px-3 py-2 text-sm border border-gray-200 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       />
                     </div>
                   </div>
                   <div className="mt-3">
-                    <label className="block text-xs font-medium text-gray-600 mb-1">Available Providers</label>
+                    <label className="block text-xs font-medium text-gray-600 mb-1">
+                      Available Providers
+                    </label>
                     <div className="flex gap-2">
-                      {availableProviders.map(provider => (
-                        <span key={provider} className="px-2 py-1 bg-green-100 text-green-800 text-xs rounded">
+                      {availableProviders.map((provider) => (
+                        <span
+                          key={provider}
+                          className="px-2 py-1 bg-green-100 text-green-800 text-xs rounded"
+                        >
                           {provider}
                         </span>
                       ))}
@@ -253,8 +296,8 @@ export function QuizGenerationModal({
                 <label className="block text-sm font-medium text-gray-700 mb-3">
                   Content
                 </label>
-                
-                {contentType === 'text' ? (
+
+                {contentType === "text" ? (
                   <textarea
                     value={content}
                     onChange={(e) => setContent(e.target.value)}
@@ -266,22 +309,27 @@ export function QuizGenerationModal({
                   <div
                     className={cn(
                       "w-full h-40 border-2 border-dashed rounded-lg flex flex-col items-center justify-center transition-colors",
-                      dragOver ? "border-blue-400 bg-blue-50" : "border-gray-300 hover:border-gray-400"
+                      dragOver
+                        ? "border-blue-400 bg-blue-50"
+                        : "border-gray-300 hover:border-gray-400"
                     )}
                     onDragOver={(e) => {
-                      e.preventDefault()
-                      setDragOver(true)
+                      e.preventDefault();
+                      setDragOver(true);
                     }}
                     onDragLeave={() => setDragOver(false)}
                     onDrop={handleDrop}
                   >
                     <Upload className="w-8 h-8 text-gray-400 mb-2" />
                     <p className="text-sm text-gray-600 mb-2">
-                      Drop your {contentType.toUpperCase()} file here or click to browse
+                      Drop your {contentType.toUpperCase()} file here or click
+                      to browse
                     </p>
                     <input
                       type="file"
-                      accept={contentType === 'pdf' ? '.pdf' : '.jpg,.jpeg,.png,.gif'}
+                      accept={
+                        contentType === "pdf" ? ".pdf" : ".jpg,.jpeg,.png,.gif"
+                      }
                       onChange={handleFileUpload}
                       className="hidden"
                       id="file-upload"
@@ -304,7 +352,9 @@ export function QuizGenerationModal({
                   </label>
                   <div className="p-4 bg-gray-50 rounded-lg max-h-32 overflow-y-auto">
                     <p className="text-sm text-gray-700 whitespace-pre-wrap">
-                      {content.length > 200 ? `${content.substring(0, 200)}...` : content}
+                      {content.length > 200
+                        ? `${content.substring(0, 200)}...`
+                        : content}
                     </p>
                   </div>
                 </div>
@@ -356,5 +406,5 @@ export function QuizGenerationModal({
         </motion.div>
       )}
     </AnimatePresence>
-  )
+  );
 }

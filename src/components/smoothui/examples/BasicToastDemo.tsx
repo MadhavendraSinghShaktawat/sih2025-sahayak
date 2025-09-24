@@ -1,18 +1,18 @@
-"use client"
+"use client";
 
-import React, { useState } from "react"
-import { AnimatePresence } from "motion/react"
+import React, { useState } from "react";
+import { AnimatePresence } from "motion/react";
 
-import BasicToast, { ToastType } from "@/components/smoothui/ui/BasicToast"
+import BasicToast, { ToastType } from "@/components/smoothui/ui/BasicToast";
 
 const BasicToastDemo = () => {
-  const [showToast, setShowToast] = useState(false)
-  const [toastType, setToastType] = useState<ToastType>("success")
+  const [showToast, setShowToast] = useState(false);
+  const [toastType, setToastType] = useState<ToastType>("success");
 
   const handleShowToast = (type: ToastType) => {
-    setToastType(type)
-    setShowToast(true)
-  }
+    setToastType(type);
+    setShowToast(true);
+  };
 
   return (
     <div className="flex flex-col gap-4 p-4">
@@ -53,7 +53,7 @@ const BasicToastDemo = () => {
         )}
       </AnimatePresence>
     </div>
-  )
-}
+  );
+};
 
-export default BasicToastDemo
+export default BasicToastDemo;

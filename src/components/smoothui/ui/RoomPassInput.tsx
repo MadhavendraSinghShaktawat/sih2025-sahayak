@@ -1,16 +1,16 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import { AnimatedOTPInput } from "@/components/smoothui/ui/AnimatedOTPInputs"
+import * as React from "react";
+import { AnimatedOTPInput } from "@/components/smoothui/ui/AnimatedOTPInputs";
 
 export function RoomPassInput({
   value,
   onChange,
   onComplete,
 }: {
-  value?: string
-  onChange?: (value: string) => void
-  onComplete?: (value: string) => void
+  value?: string;
+  onChange?: (value: string) => void;
+  onComplete?: (value: string) => void;
 }) {
   return (
     <AnimatedOTPInput
@@ -19,9 +19,7 @@ export function RoomPassInput({
       onChange={onChange}
       onComplete={onComplete}
     />
-  )
+  );
 }
 
-export default RoomPassInput
-
-
+export default RoomPassInput;

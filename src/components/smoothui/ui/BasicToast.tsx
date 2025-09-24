@@ -1,18 +1,18 @@
-"use client"
+"use client";
 
-import { useEffect, useState } from "react"
-import { AlertCircle, CheckCircle, Info, X, XCircle } from "lucide-react"
-import { AnimatePresence, motion } from "motion/react"
+import { useEffect, useState } from "react";
+import { AlertCircle, CheckCircle, Info, X, XCircle } from "lucide-react";
+import { AnimatePresence, motion } from "motion/react";
 
-export type ToastType = "success" | "error" | "info" | "warning"
+export type ToastType = "success" | "error" | "info" | "warning";
 
 export interface ToastProps {
-  message: string
-  type?: ToastType
-  duration?: number
-  onClose?: () => void
-  isVisible?: boolean
-  className?: string
+  message: string;
+  type?: ToastType;
+  duration?: number;
+  onClose?: () => void;
+  isVisible?: boolean;
+  className?: string;
 }
 
 const toastIcons = {
@@ -20,7 +20,7 @@ const toastIcons = {
   error: <XCircle className="h-5 w-5 text-red-500" />,
   warning: <AlertCircle className="h-5 w-5 text-amber-500" />,
   info: <Info className="h-5 w-5 text-blue-500" />,
-}
+};
 
 const toastClasses = {
   success:
@@ -29,7 +29,7 @@ const toastClasses = {
   warning:
     "border-amber-100 bg-amber-50 dark:border-amber-900 dark:bg-amber-950",
   info: "border-blue-100 bg-blue-50 dark:border-blue-900 dark:bg-blue-950",
-}
+};
 
 export default function BasicToast({
   message,
@@ -39,21 +39,21 @@ export default function BasicToast({
   isVisible = true,
   className = "",
 }: ToastProps) {
-  const [visible, setVisible] = useState(isVisible)
+  const [visible, setVisible] = useState(isVisible);
 
   useEffect(() => {
-    setVisible(isVisible)
-  }, [isVisible])
+    setVisible(isVisible);
+  }, [isVisible]);
 
   useEffect(() => {
     if (visible && duration > 0) {
       const timer = setTimeout(() => {
-        setVisible(false)
-        onClose?.()
-      }, duration)
-      return () => clearTimeout(timer)
+        setVisible(false);
+        onClose?.();
+      }, duration);
+      return () => clearTimeout(timer);
     }
-  }, [visible, duration, onClose])
+  }, [visible, duration, onClose]);
 
   return (
     <AnimatePresence>
@@ -74,8 +74,8 @@ export default function BasicToast({
           <p className="flex-1 text-sm">{message}</p>
           <button
             onClick={() => {
-              setVisible(false)
-              onClose?.()
+              setVisible(false);
+              onClose?.();
             }}
             className="flex-shrink-0 rounded-full p-1 transition-colors hover:bg-black/5 dark:hover:bg-white/10"
           >
@@ -84,18 +84,18 @@ export default function BasicToast({
         </motion.div>
       )}
     </AnimatePresence>
-  )
+  );
 }
 
 // Example of how to use this component:
 export function ToastDemo() {
-  const [showToast, setShowToast] = useState(false)
-  const [toastType, setToastType] = useState<ToastType>("success")
+  const [showToast, setShowToast] = useState(false);
+  const [toastType, setToastType] = useState<ToastType>("success");
 
   const handleShowToast = (type: ToastType) => {
-    setToastType(type)
-    setShowToast(true)
-  }
+    setToastType(type);
+    setShowToast(true);
+  };
 
   return (
     <div className="flex flex-col gap-4 p-4">
@@ -137,5 +137,5 @@ export function ToastDemo() {
         )}
       </AnimatePresence>
     </div>
-  )
+  );
 }

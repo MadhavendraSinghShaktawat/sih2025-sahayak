@@ -1,25 +1,25 @@
-"use client"
+"use client";
 
-import React from "react"
-import { motion, AnimatePresence } from "motion/react"
-import { cn } from "@/lib/utils/cn"
+import React from "react";
+import { motion, AnimatePresence } from "motion/react";
+import { cn } from "@/lib/utils/cn";
 
 export interface SlashCommand {
-  id: string
-  name: string
-  description: string
-  icon?: React.ReactNode
-  parameters?: string[]
+  id: string;
+  name: string;
+  description: string;
+  icon?: React.ReactNode;
+  parameters?: string[];
 }
 
 interface SlashCommandDropdownProps {
-  isOpen: boolean
-  commands: SlashCommand[]
-  selectedIndex: number
-  onSelect: (command: SlashCommand) => void
-  onClose: () => void
-  position: { top: number; left: number }
-  typedCommandName?: string | null
+  isOpen: boolean;
+  commands: SlashCommand[];
+  selectedIndex: number;
+  onSelect: (command: SlashCommand) => void;
+  onClose: () => void;
+  position: { top: number; left: number };
+  typedCommandName?: string | null;
 }
 
 export const SlashCommandDropdown: React.FC<SlashCommandDropdownProps> = ({
@@ -33,23 +33,23 @@ export const SlashCommandDropdown: React.FC<SlashCommandDropdownProps> = ({
 }) => {
   React.useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (!isOpen) return
+      if (!isOpen) return;
 
       switch (e.key) {
         case "Escape":
-          onClose()
-          break
+          onClose();
+          break;
         case "Enter":
           if (selectedIndex >= 0 && selectedIndex < commands.length) {
-            onSelect(commands[selectedIndex])
+            onSelect(commands[selectedIndex]);
           }
-          break
+          break;
       }
-    }
+    };
 
-    document.addEventListener("keydown", handleKeyDown)
-    return () => document.removeEventListener("keydown", handleKeyDown)
-  }, [isOpen, selectedIndex, commands, onSelect, onClose])
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [isOpen, selectedIndex, commands, onSelect, onClose]);
 
   return (
     <AnimatePresence>
@@ -63,7 +63,8 @@ export const SlashCommandDropdown: React.FC<SlashCommandDropdownProps> = ({
           style={{
             top: position.top,
             left: position.left,
-            boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)"
+            boxShadow:
+              "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)",
           }}
         >
           <div className="p-2">
@@ -78,36 +79,69 @@ export const SlashCommandDropdown: React.FC<SlashCommandDropdownProps> = ({
                     "w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left transition-all duration-200",
                     "hover:bg-blue-50 hover:shadow-sm focus:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-200",
                     // Highlight commands that match the typed text (like Notion) - only if not selected
-                    typedCommandName && command.name.toLowerCase().startsWith(typedCommandName.toLowerCase()) && selectedIndex !== index && "bg-blue-100 text-blue-800 font-medium",
+                    typedCommandName &&
+                      command.name
+                        .toLowerCase()
+                        .startsWith(typedCommandName.toLowerCase()) &&
+                      selectedIndex !== index &&
+                      "bg-blue-100 text-blue-800 font-medium",
                     // Selected command (primary highlight) - overrides typed match
-                    selectedIndex === index && "bg-blue-50 text-blue-700 shadow-sm ring-1 ring-blue-200"
+                    selectedIndex === index &&
+                      "bg-blue-50 text-blue-700 shadow-sm ring-1 ring-blue-200"
                   )}
                   onClick={() => onSelect(command)}
                   whileHover={{ scale: 1.01 }}
                   whileTap={{ scale: 0.99 }}
                 >
                   {command.icon && (
-                    <div className={cn(
-                      "flex-shrink-0 w-5 h-5 transition-colors",
-                      typedCommandName && command.name.toLowerCase().startsWith(typedCommandName.toLowerCase()) && selectedIndex !== index ? "text-blue-700" : 
-                      selectedIndex === index ? "text-blue-600" : "text-gray-400"
-                    )}>
+                    <div
+                      className={cn(
+                        "flex-shrink-0 w-5 h-5 transition-colors",
+                        typedCommandName &&
+                          command.name
+                            .toLowerCase()
+                            .startsWith(typedCommandName.toLowerCase()) &&
+                          selectedIndex !== index
+                          ? "text-blue-700"
+                          : selectedIndex === index
+                            ? "text-blue-600"
+                            : "text-gray-400"
+                      )}
+                    >
                       {command.icon}
                     </div>
                   )}
                   <div className="flex-1 min-w-0">
-                    <div className={cn(
-                      "font-semibold text-sm transition-colors",
-                      typedCommandName && command.name.toLowerCase().startsWith(typedCommandName.toLowerCase()) && selectedIndex !== index ? "text-blue-800" :
-                      selectedIndex === index ? "text-blue-700" : "text-gray-900"
-                    )}>
+                    <div
+                      className={cn(
+                        "font-semibold text-sm transition-colors",
+                        typedCommandName &&
+                          command.name
+                            .toLowerCase()
+                            .startsWith(typedCommandName.toLowerCase()) &&
+                          selectedIndex !== index
+                          ? "text-blue-800"
+                          : selectedIndex === index
+                            ? "text-blue-700"
+                            : "text-gray-900"
+                      )}
+                    >
                       {command.name}
                     </div>
-                    <div className={cn(
-                      "text-xs transition-colors",
-                      typedCommandName && command.name.toLowerCase().startsWith(typedCommandName.toLowerCase()) && selectedIndex !== index ? "text-blue-700" :
-                      selectedIndex === index ? "text-blue-600" : "text-gray-500"
-                    )}>
+                    <div
+                      className={cn(
+                        "text-xs transition-colors",
+                        typedCommandName &&
+                          command.name
+                            .toLowerCase()
+                            .startsWith(typedCommandName.toLowerCase()) &&
+                          selectedIndex !== index
+                          ? "text-blue-700"
+                          : selectedIndex === index
+                            ? "text-blue-600"
+                            : "text-gray-500"
+                      )}
+                    >
                       {command.description}
                     </div>
                     {command.parameters && command.parameters.length > 0 && (
@@ -129,8 +163,8 @@ export const SlashCommandDropdown: React.FC<SlashCommandDropdownProps> = ({
         </motion.div>
       )}
     </AnimatePresence>
-  )
-}
+  );
+};
 
 // Default commands for quiz generation
 export const defaultCommands: SlashCommand[] = [
@@ -139,12 +173,22 @@ export const defaultCommands: SlashCommand[] = [
     name: "quiz",
     description: "Generate a quiz from content",
     icon: (
-      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+      <svg
+        className="w-4 h-4"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={2}
+          d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+        />
       </svg>
     ),
     parameters: ["topic", "class", "language", "difficulty", "type"],
   },
-]
+];
 
-export default SlashCommandDropdown
+export default SlashCommandDropdown;
