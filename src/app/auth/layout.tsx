@@ -9,14 +9,14 @@ export default function AuthLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>): React.ReactElement {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-white to-blue-50">
+    <div className="min-h-screen bg-gradient-to-b">
       <Navbar
         slots={[
           <LanguageSwitcher key="lang" />,
           <AnimatedThemeToggler key="theme" />,
         ]}
       />
-      <div className="container mx-auto px-4 py-8">{children}</div>
+      {children}
     </div>
   );
 }

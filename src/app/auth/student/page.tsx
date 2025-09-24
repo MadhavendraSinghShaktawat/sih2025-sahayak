@@ -7,7 +7,6 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useI18n } from "@/context/i18n-provider";
-import Link from "next/link";
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL as string,
@@ -123,7 +122,7 @@ export default function StudentSignIn() {
   }
 
   return (
-    <div className="flex flex-col gap-6 items-center justify-center min-h-screen bg-gradient-to-b from-white to-blue-50 p-6">
+    <div className="flex flex-col gap-6 items-center justify-center min-h-screen bg-gradient-to-b">
       <Card className="overflow-hidden p-0 w-full max-w-2xl">
         <CardContent className="grid p-0 md:grid-cols-2">
           {/* Form */}
@@ -200,7 +199,7 @@ export default function StudentSignIn() {
           {/* Right Side Image */}
           <div className="bg-muted relative hidden md:block">
             <img
-              src="/placeholder.svg"
+              src="/auth/student.jpg"
               alt="Auth image"
               className="absolute inset-0 h-full w-full object-cover dark:brightness-[0.2] dark:grayscale"
             />

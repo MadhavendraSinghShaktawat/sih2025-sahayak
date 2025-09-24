@@ -140,7 +140,7 @@ const Navbar = ({
   slots,
 }: NavbarProps) => {
   return (
-    <section className="py-4">
+    <section className="p-4">
       <div className="container">
         {/* Desktop Menu */}
         <nav className="hidden justify-between lg:flex">
