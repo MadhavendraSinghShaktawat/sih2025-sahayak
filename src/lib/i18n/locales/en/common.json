@@ -19,7 +19,7 @@
       "accountCreated": "Account created. Please verify your email, then sign in.",
       "helper": "Invited by a teacher? Use your email and password.",
       "teacherCta": "Sign in as teacher",
-      "noAccount": "Don’t have an account?",
+      "noAccount": "Don't have an account?",
       "haveAccount": "Already have an account?"
     },
     "teacher": {
@@ -38,6 +38,63 @@
       "termsOfService": "Terms of Service",
       "and": "and",
       "privacyPolicy": "Privacy Policy"
+    }
+  },
+  "dashboard": {
+    "teacher": {
+      "title": "Teacher Dashboard",
+      "welcome": "Welcome back!",
+      "subtitle": "Manage your classes and track student progress",
+      "quickActions": "Quick Actions",
+      "createRoom": "Create Room",
+      "createRoomDesc": "Generate a room pass and share QR with students",
+      "inviteStudents": "Invite Students",
+      "inviteStudentsDesc": "Add student emails to whitelist",
+      "generateQuiz": "Generate Quiz",
+      "generateQuizDesc": "Create interactive quizzes from content",
+      "recentQuizzes": "Recent Quizzes",
+      "analytics": "Analytics",
+      "totalStudents": "Total Students",
+      "activeRooms": "Active Rooms",
+      "quizCompletions": "Quiz Completions",
+      "avgScore": "Average Score"
+    },
+    "student": {
+      "title": "Student Dashboard",
+      "welcome": "Welcome, Student!",
+      "subtitle": "Ready to learn? Join your teacher's room or explore learning materials",
+      "learningActivity": "Learning Activity",
+      "totalHours": "Total Hours",
+      "thisWeek": "This Week",
+      "performance": "Performance",
+      "totalScore": "Total Score",
+      "last6Months": "Last 6 Months",
+      "enrolledCourses": "Enrolled Courses",
+      "searchCourse": "Search course, category, etc",
+      "allStatus": "All Status",
+      "viewAll": "View All",
+      "ongoing": "Ongoing",
+      "completed": "Completed",
+      "upcoming": "Upcoming"
+    },
+    "common": {
+      "profile": "Profile",
+      "edit": "Edit",
+      "chat": "Chat",
+      "email": "Email",
+      "phone": "Phone Number",
+      "address": "Address",
+      "linkedin": "LinkedIn",
+      "twitter": "Twitter",
+      "instagram": "Instagram",
+      "recentActivity": "Recent Activity",
+      "quickStats": "Quick Stats",
+      "refresh": "Refresh",
+      "delete": "Delete",
+      "prev": "Prev",
+      "next": "Next",
+      "finish": "Finish",
+      "searchPlaceholder": "Search anything"
     }
   }
 }

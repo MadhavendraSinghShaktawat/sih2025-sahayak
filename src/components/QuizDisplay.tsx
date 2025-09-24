@@ -3,15 +3,18 @@
 import * as React from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Question, Quiz } from "@/lib/llm/types";
+import { supabase } from "@/lib/supabaseClient";
 
 type AnswerMap = Record<string, string | number>;
 
 interface QuizDisplayProps {
   quiz: Quiz;
+  roomId?: string;
   onComplete?: (result: {
     score: number;
     total: number;
     answers: AnswerMap;
+    timeTaken: number;
   }) => void;
 }
 
@@ -71,7 +74,7 @@ function QuestionCard({
   );
 }
 
-export function QuizDisplay({ quiz, onComplete }: QuizDisplayProps) {
+export function QuizDisplay({ quiz, roomId, onComplete }: QuizDisplayProps) {
   const [index, setIndex] = React.useState(0);
   const [answers, setAnswers] = React.useState<AnswerMap>({});
   const containerRef = React.useRef<HTMLDivElement | null>(null);
@@ -79,25 +82,97 @@ export function QuizDisplay({ quiz, onComplete }: QuizDisplayProps) {
   const [result, setResult] = React.useState<{
     score: number;
     total: number;
+    timeTaken: number;
   } | null>(null);
+  const [startTime, setStartTime] = React.useState<number>(Date.now());
+  const [saving, setSaving] = React.useState(false);
+
+  // Debug logging
+  console.log("QuizDisplay received quiz:", quiz);
+  console.log("Quiz questions:", quiz?.questions);
+  console.log("Current index:", index);
+
+  // Early return if quiz data is invalid
+  if (!quiz || !quiz.questions || quiz.questions.length === 0) {
+    console.log("Quiz data is invalid, returning error");
+    return (
+      <div className="flex items-center justify-center h-64 text-gray-500">
+        <div className="text-center">
+          <div className="text-4xl mb-2">❌</div>
+          <p>Invalid quiz data</p>
+        </div>
+      </div>
+    );
+  }
 
   const current = quiz.questions[index];
+  
+  // Additional safety check for current question
+  if (!current || !current.id) {
+    return (
+      <div className="flex items-center justify-center h-64 text-gray-500">
+        <div className="text-center">
+          <div className="text-4xl mb-2">❌</div>
+          <p>Invalid question data</p>
+        </div>
+      </div>
+    );
+  }
+
   const isLast = index === quiz.questions.length - 1;
-  const isAnswered = answers[current?.id] !== undefined;
+  const isAnswered = answers[current.id] !== undefined;
 
   const handleAnswer = (value: string | number) => {
+    if (!current) return;
     const updated = { ...answers, [current.id]: value };
     setAnswers(updated);
   };
 
-  const finishQuiz = () => {
+  const finishQuiz = async () => {
     const total = quiz.questions.length;
     let score = 0;
     for (const q of quiz.questions) {
       if (String(answers[q.id]) === String(q.correctAnswer)) score += 1;
     }
-    onComplete?.({ score, total, answers });
-    setResult({ score, total });
+    
+    const timeTaken = Math.floor((Date.now() - startTime) / 1000); // in seconds
+    const result = { score, total, timeTaken };
+    
+    setSaving(true);
+    
+    // Save response to database if roomId is provided
+    if (roomId) {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session?.access_token) {
+          const response = await fetch('/api/quiz-responses', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${session.access_token}`,
+            },
+            body: JSON.stringify({
+              quizId: quiz.id,
+              roomId: roomId,
+              answers: answers,
+              score: score,
+              totalQuestions: total,
+              timeTaken: timeTaken,
+            }),
+          });
+          
+          if (!response.ok) {
+            console.error('Failed to save quiz response');
+          }
+        }
+      } catch (error) {
+        console.error('Error saving quiz response:', error);
+      }
+    }
+    
+    setSaving(false);
+    onComplete?.({ score, total, answers, timeTaken });
+    setResult(result);
     setCompleted(true);
   };
 
@@ -179,9 +254,10 @@ export function QuizDisplay({ quiz, onComplete }: QuizDisplayProps) {
             <button
               aria-label="Finish"
               onClick={finishQuiz}
-              className="rounded-md border px-3 py-2 text-sm"
+              disabled={saving}
+              className="rounded-md border px-3 py-2 text-sm disabled:opacity-50"
             >
-              Finish
+              {saving ? "Saving..." : "Finish"}
             </button>
           ) : (
             <button

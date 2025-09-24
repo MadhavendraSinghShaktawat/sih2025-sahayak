@@ -1,0 +1,140 @@
+{
+  "role": "student",
+  "sections": [
+    {
+      "id": "learning",
+      "label": "Learning",
+      "icon": "Home",
+      "panelContent": {
+        "type": "learning",
+        "title": "Learning Hub",
+        "description": "Access your learning materials and activities",
+        "items": [
+          {
+            "id": "join-room",
+            "label": "Join Room",
+            "description": "Enter room code to join your teacher's session",
+            "icon": "Users",
+            "action": "joinRoom"
+          },
+          {
+            "id": "my-quizzes",
+            "label": "My Quizzes",
+            "description": "View and take assigned quizzes",
+            "icon": "FileText",
+            "action": "viewQuizzes"
+          }
+        ]
+      }
+    },
+    {
+      "id": "materials",
+      "label": "Materials",
+      "icon": "BookOpen",
+      "panelContent": {
+        "type": "materials",
+        "title": "Study Materials",
+        "description": "Access your textbooks and study resources",
+        "items": [
+          {
+            "id": "textbooks",
+            "label": "Textbooks",
+            "description": "Digital textbooks and reading materials",
+            "icon": "Book",
+            "action": "viewTextbooks"
+          },
+          {
+            "id": "resources",
+            "label": "Resources",
+            "description": "Additional learning resources and links",
+            "icon": "Link",
+            "action": "viewResources"
+          }
+        ]
+      }
+    },
+    {
+      "id": "progress",
+      "label": "Progress",
+      "icon": "Award",
+      "panelContent": {
+        "type": "progress",
+        "title": "Learning Progress",
+        "description": "Track your achievements and learning journey",
+        "items": [
+          {
+            "id": "achievements",
+            "label": "Achievements",
+            "description": "View your badges and accomplishments",
+            "icon": "Trophy",
+            "action": "viewAchievements"
+          },
+          {
+            "id": "learning-stats",
+            "label": "Learning Stats",
+            "description": "Track your study time and progress",
+            "icon": "BarChart3",
+            "action": "viewStats"
+          }
+        ]
+      }
+    },
+    {
+      "id": "schedule",
+      "label": "Schedule",
+      "icon": "Calendar",
+      "panelContent": {
+        "type": "schedule",
+        "title": "Class Schedule",
+        "description": "Check your class timetable and upcoming sessions",
+        "items": [
+          {
+            "id": "upcoming-classes",
+            "label": "Upcoming Classes",
+            "description": "View your next class sessions",
+            "icon": "Clock",
+            "action": "viewUpcoming"
+          },
+          {
+            "id": "assignments",
+            "label": "Assignments",
+            "description": "Track homework and project deadlines",
+            "icon": "CheckSquare",
+            "action": "viewAssignments"
+          }
+        ]
+      }
+    },
+    {
+      "id": "settings",
+      "label": "Settings",
+      "icon": "Settings",
+      "panelContent": {
+        "type": "settings",
+        "title": "Settings",
+        "description": "Configure your learning preferences",
+        "items": [
+          {
+            "id": "profile-settings",
+            "label": "Profile Settings",
+            "description": "Update your profile information",
+            "icon": "User",
+            "action": "profileSettings"
+          },
+          {
+            "id": "notification-settings",
+            "label": "Notifications",
+            "description": "Manage notification preferences",
+            "icon": "Bell",
+            "action": "notificationSettings"
+          }
+        ]
+      }
+    }
+  ],
+  "logout": {
+    "label": "Logout",
+    "icon": "LogOut",
+    "action": "logout"
+  }
+}

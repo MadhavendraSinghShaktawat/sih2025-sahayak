@@ -47,7 +47,7 @@ export function SelectQuizModal({
           quizId: quiz.id,
           title: quiz.title,
           subject: quiz.metadata?.subject,
-          questions: quiz.questions?.length || 0,
+          questions: quiz.questions || [],
         }),
       });
       const json = await resp.json().catch(() => ({}) as any);

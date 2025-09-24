@@ -39,5 +39,62 @@
       "and": "ਅਤੇ",
       "privacyPolicy": "ਗੋਪਨੀਯਤਾ ਨੀਤੀ"
     }
+  },
+  "dashboard": {
+    "teacher": {
+      "title": "ਅਧਿਆਪਕ ਡੈਸ਼ਬੋਰਡ",
+      "welcome": "ਵਾਪਸ ਸਵਾਗਤ!",
+      "subtitle": "ਆਪਣੀਆਂ ਕਲਾਸਾਂ ਦਾ ਪ੍ਰਬੰਧਨ ਕਰੋ ਅਤੇ ਵਿਦਿਆਰਥੀਆਂ ਦੀ ਤਰੱਕੀ ਨੂੰ ਟਰੈਕ ਕਰੋ",
+      "quickActions": "ਤੇਜ਼ ਕਾਰਵਾਈਆਂ",
+      "createRoom": "ਕਮਰਾ ਬਣਾਓ",
+      "createRoomDesc": "ਕਮਰੇ ਦਾ ਪਾਸਕੋਡ ਬਣਾਓ ਅਤੇ ਵਿਦਿਆਰਥੀਆਂ ਨਾਲ QR ਸਾਂਝਾ ਕਰੋ",
+      "inviteStudents": "ਵਿਦਿਆਰਥੀਆਂ ਨੂੰ ਸੱਦੋ",
+      "inviteStudentsDesc": "ਵਿਦਿਆਰਥੀਆਂ ਦੇ ਈਮੇਲਾਂ ਨੂੰ ਵ੍ਹਾਈਟਲਿਸਟ ਵਿੱਚ ਸ਼ਾਮਲ ਕਰੋ",
+      "generateQuiz": "ਕੁਇਜ਼ ਬਣਾਓ",
+      "generateQuizDesc": "ਸਮੱਗਰੀ ਤੋਂ ਇੰਟਰਐਕਟਿਵ ਕੁਇਜ਼ ਬਣਾਓ",
+      "recentQuizzes": "ਹਾਲੀਆ ਕੁਇਜ਼",
+      "analytics": "ਵਿਸ਼ਲੇਸ਼ਣ",
+      "totalStudents": "ਕੁੱਲ ਵਿਦਿਆਰਥੀ",
+      "activeRooms": "ਸਰਗਰਮ ਕਮਰੇ",
+      "quizCompletions": "ਕੁਇਜ਼ ਪੂਰਤੀਆਂ",
+      "avgScore": "ਔਸਤ ਸਕੋਰ"
+    },
+    "student": {
+      "title": "ਵਿਦਿਆਰਥੀ ਡੈਸ਼ਬੋਰਡ",
+      "welcome": "ਸਵਾਗਤ, ਵਿਦਿਆਰਥੀ!",
+      "subtitle": "ਸਿੱਖਣ ਲਈ ਤਿਆਰ? ਆਪਣੇ ਅਧਿਆਪਕ ਦੇ ਕਮਰੇ ਵਿੱਚ ਸ਼ਾਮਲ ਹੋਵੋ ਜਾਂ ਸਿੱਖਣ ਦੀਆਂ ਸਮੱਗਰੀਆਂ ਦੀ ਪੜਚੋਲ ਕਰੋ",
+      "learningActivity": "ਸਿੱਖਣ ਦੀ ਗਤੀਵਿਧੀ",
+      "totalHours": "ਕੁੱਲ ਘੰਟੇ",
+      "thisWeek": "ਇਸ ਹਫ਼ਤੇ",
+      "performance": "ਪ੍ਰਦਰਸ਼ਨ",
+      "totalScore": "ਕੁੱਲ ਸਕੋਰ",
+      "last6Months": "ਪਿਛਲੇ 6 ਮਹੀਨੇ",
+      "enrolledCourses": "ਰਜਿਸਟਰਡ ਕੋਰਸ",
+      "searchCourse": "ਕੋਰਸ, ਸ਼੍ਰੇਣੀ ਆਦਿ ਖੋਜੋ",
+      "allStatus": "ਸਾਰੀ ਸਥਿਤੀ",
+      "viewAll": "ਸਭ ਦੇਖੋ",
+      "ongoing": "ਚਲ ਰਿਹਾ",
+      "completed": "ਪੂਰਾ ਹੋਇਆ",
+      "upcoming": "ਆਉਣ ਵਾਲਾ"
+    },
+    "common": {
+      "profile": "ਪ੍ਰੋਫਾਈਲ",
+      "edit": "ਸੰਪਾਦਨ",
+      "chat": "ਚੈਟ",
+      "email": "ਈਮੇਲ",
+      "phone": "ਫੋਨ ਨੰਬਰ",
+      "address": "ਪਤਾ",
+      "linkedin": "ਲਿੰਕਡਇਨ",
+      "twitter": "ਟਵਿੱਟਰ",
+      "instagram": "ਇੰਸਟਾਗ੍ਰਾਮ",
+      "recentActivity": "ਹਾਲੀਆ ਗਤੀਵਿਧੀ",
+      "quickStats": "ਤੇਜ਼ ਅੰਕੜੇ",
+      "refresh": "ਤਾਜ਼ਾ ਕਰੋ",
+      "delete": "ਮਿਟਾਓ",
+      "prev": "ਪਿਛਲਾ",
+      "next": "ਅਗਲਾ",
+      "finish": "ਸਮਾਪਤ",
+      "searchPlaceholder": "ਕੁਝ ਵੀ ਖੋਜੋ"
+    }
   }
 }

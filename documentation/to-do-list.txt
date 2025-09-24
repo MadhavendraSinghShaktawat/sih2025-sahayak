@@ -28,20 +28,30 @@ Phase 4: Quiz Display Component ✅ COMPLETED
 - [x] Add quiz completion summary & retry
 - [ ] Extend types: Fill-ups, Mixed (Phase 6/7)
 
-Phase 5: Chat Integration
-- [ ] Create QuizMessage component for chat
-- [ ] Add quiz click-to-open functionality
-- [ ] Implement modal overlay system
-- [ ] Connect quiz generation to chat room
-- [ ] Add quiz sharing between teacher and students
+Phase 5: Chat Integration ✅ COMPLETED
+- [x] Create QuizMessage component for chat
+- [x] Add quiz click-to-open functionality
+- [x] Implement modal overlay system
+- [x] Connect quiz generation to chat room
+- [x] Add quiz sharing between teacher and students
+- [x] Add auto-scroll to chat on new messages
+- [x] Implement teacher message background styling
 
-Phase 6: Mobile Optimization
+Phase 6: Layout and Sidebar Refactor
+- [ ] Create role-specific layouts (teacher/student) that change by role
+- [ ] Create single shared Sidebar component that accepts config
+- [ ] Define sidebar configurations in JSON format for easy editing
+- [ ] Implement pixel-perfect UI design matching reference image
+- [ ] Integrate new layouts into teacher/student pages
+- [ ] Remove old sidebar components and clean up code
+
+Phase 7: Mobile Optimization
 - [ ] Implement horizontal swipe gestures
 - [ ] Optimize quiz display for mobile screens
 - [ ] Add touch-friendly navigation
 - [ ] Test responsive design
 
-Phase 7: Testing & Polish
+Phase 8: Testing & Polish
 - [ ] Test complete quiz flow
 - [ ] Add error handling and loading states
 - [ ] Implement quiz analytics (completion rates, scores)

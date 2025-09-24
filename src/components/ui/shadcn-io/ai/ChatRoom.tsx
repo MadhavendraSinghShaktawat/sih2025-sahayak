@@ -26,6 +26,8 @@ type ChatMessage = {
   name: string;
   avatar?: string;
   role: "teacher" | "student";
+  kind?: string;
+  data?: any;
 };
 
 export function ChatRoom({
@@ -94,6 +96,8 @@ export function ChatRoom({
           text: msg.text,
           name: msg.name,
           role: msg.role as "teacher" | "student",
+          kind: msg.kind,
+          data: msg.data,
         }));
 
         setMessages(dbMessages);
@@ -128,6 +132,8 @@ export function ChatRoom({
             text: newMsg.text,
             name: newMsg.name,
             role: newMsg.role as "teacher" | "student",
+            kind: newMsg.kind,
+            data: newMsg.data,
           };
           setMessages((prev) => {
             // Avoid duplicates by checking if message already exists
@@ -249,10 +255,17 @@ export function ChatRoom({
   function onKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
     if (e.key === "Enter" && !e.shiftKey) {
       const trimmed = input.trim().toLowerCase();
-      if (role === "teacher" && trimmed.startsWith("/quiz")) {
-        e.preventDefault();
-        setShowQuizModal(true);
-        return;
+      if (role === "teacher") {
+        if (trimmed.startsWith("/selectquiz") || trimmed.startsWith("/selectQuiz")) {
+          e.preventDefault();
+          setShowSelectQuiz(true);
+          return;
+        }
+        if (trimmed === "/quiz") {
+          e.preventDefault();
+          setShowQuizModal(true);
+          return;
+        }
       }
       e.preventDefault();
       sendMessage();
@@ -327,17 +340,66 @@ export function ChatRoom({
               </div>
             ) : (
               <>
-                {messages.map((m) => (
-                  <Message
-                    key={m.id}
-                    from={m.role === "teacher" ? "user" : "assistant"}
-                  >
-                    <MessageContent className="text-gray-800">
-                      {m.text}
-                    </MessageContent>
-                    <MessageAvatar name={m.name} src={m.avatar || ""} />
-                  </Message>
-                ))}
+                {messages.map((m) => {
+                  // Debug logging for quiz messages
+                  if (m.kind === "quiz") {
+                    console.log("Quiz message detected:", m);
+                    console.log("Quiz data:", m.data);
+                    console.log("Quiz questions:", m.data?.questions);
+                  }
+                  
+                  return (
+                    <Message
+                      key={m.id}
+                      from={m.role === "teacher" ? "user" : "assistant"}
+                    >
+                      <MessageContent className="text-gray-800">
+                        {m.kind === "quiz" && m.data ? (
+                          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                            <div className="flex items-center gap-2 mb-2">
+                              <BookOpen className="w-4 h-4 text-blue-600" />
+                              <span className="font-semibold text-blue-800">Quiz: {m.data.title}</span>
+                            </div>
+                            <p className="text-sm text-blue-700 mb-3">{m.data.subject}</p>
+                          <button
+                            onClick={() => {
+                              console.log("Clicking quiz button, original data:", m.data);
+                              console.log("Questions type:", typeof m.data.questions);
+                              console.log("Questions value:", m.data.questions);
+                              
+                              // Transform message data to Quiz format
+                              const quizData = {
+                                id: m.data.quizId,
+                                title: m.data.title,
+                                description: `Quiz on ${m.data.subject}`,
+                                questions: m.data.questions || [],
+                                metadata: {
+                                  subject: m.data.subject,
+                                  class: "Any",
+                                  language: "English",
+                                  difficulty: "medium",
+                                  estimatedTime: 10,
+                                  createdAt: new Date().toISOString(),
+                                  generatedBy: "teacher"
+                                }
+                              };
+                              
+                              console.log("Transformed quiz data:", quizData);
+                              setQuizModal({ open: true, quizId: m.data.quizId, quiz: quizData });
+                            }}
+                            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm"
+                          >
+                            Start Quiz
+                          </button>
+                          </div>
+                        ) : (
+                          m.text
+                        )}
+                      </MessageContent>
+                      <MessageAvatar name={m.name} src={m.avatar || ""} />
+                    </Message>
+                  );
+                })}
                 <div ref={messagesEndRef} />
               </>
             )}
@@ -356,7 +418,7 @@ export function ChatRoom({
                   Close
                 </button>
               </div>
-              <QuizDisplay quiz={quizModal.quiz} />
+              <QuizDisplay quiz={quizModal.quiz} roomId={roomId} />
             </div>
           </div>
         )}

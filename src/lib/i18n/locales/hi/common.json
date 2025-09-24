@@ -39,5 +39,62 @@
       "and": "और",
       "privacyPolicy": "गोपनीयता नीति"
     }
+  },
+  "dashboard": {
+    "teacher": {
+      "title": "शिक्षक डैशबोर्ड",
+      "welcome": "वापस स्वागत है!",
+      "subtitle": "अपनी कक्षाओं का प्रबंधन करें और छात्रों की प्रगति को ट्रैक करें",
+      "quickActions": "त्वरित कार्य",
+      "createRoom": "कमरा बनाएं",
+      "createRoomDesc": "कमरे का पासकोड बनाएं और छात्रों के साथ QR साझा करें",
+      "inviteStudents": "छात्रों को आमंत्रित करें",
+      "inviteStudentsDesc": "छात्रों के ईमेल को व्हाइटलिस्ट में जोड़ें",
+      "generateQuiz": "क्विज़ बनाएं",
+      "generateQuizDesc": "सामग्री से इंटरैक्टिव क्विज़ बनाएं",
+      "recentQuizzes": "हाल के क्विज़",
+      "analytics": "विश्लेषण",
+      "totalStudents": "कुल छात्र",
+      "activeRooms": "सक्रिय कमरे",
+      "quizCompletions": "क्विज़ पूर्णताएं",
+      "avgScore": "औसत स्कोर"
+    },
+    "student": {
+      "title": "छात्र डैशबोर्ड",
+      "welcome": "स्वागत है, छात्र!",
+      "subtitle": "सीखने के लिए तैयार? अपने शिक्षक के कमरे में शामिल हों या सीखने की सामग्री का अन्वेषण करें",
+      "learningActivity": "सीखने की गतिविधि",
+      "totalHours": "कुल घंटे",
+      "thisWeek": "इस सप्ताह",
+      "performance": "प्रदर्शन",
+      "totalScore": "कुल स्कोर",
+      "last6Months": "पिछले 6 महीने",
+      "enrolledCourses": "नामांकित पाठ्यक्रम",
+      "searchCourse": "पाठ्यक्रम, श्रेणी आदि खोजें",
+      "allStatus": "सभी स्थिति",
+      "viewAll": "सभी देखें",
+      "ongoing": "चल रहा",
+      "completed": "पूर्ण",
+      "upcoming": "आगामी"
+    },
+    "common": {
+      "profile": "प्रोफ़ाइल",
+      "edit": "संपादन",
+      "chat": "चैट",
+      "email": "ईमेल",
+      "phone": "फोन नंबर",
+      "address": "पता",
+      "linkedin": "लिंक्डइन",
+      "twitter": "ट्विटर",
+      "instagram": "इंस्टाग्राम",
+      "recentActivity": "हाल की गतिविधि",
+      "quickStats": "त्वरित आंकड़े",
+      "refresh": "ताज़ा करें",
+      "delete": "हटाएं",
+      "prev": "पिछला",
+      "next": "अगला",
+      "finish": "समाप्त",
+      "searchPlaceholder": "कुछ भी खोजें"
+    }
   }
 }

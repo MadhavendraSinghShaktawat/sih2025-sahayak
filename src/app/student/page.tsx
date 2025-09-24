@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
 import RoomPassInput from "@/components/smoothui/ui/RoomPassInput";
 import { retry } from "@/lib/retry";
+import RoleLayout from "@/components/blocks/RoleLayout";
+import StudentDashboard from "@/components/dashboard/StudentDashboard";
 import {
   BookOpen,
   Users,
@@ -138,51 +140,37 @@ export default function StudentPage() {
     },
   ];
 
+  const handleSidebarAction = (action: string, data?: any) => {
+    switch (action) {
+      case 'joinRoom':
+        // Handle room joining
+        console.log('Join room action');
+        break;
+      case 'viewQuizzes':
+        // Handle quiz viewing
+        console.log('View quizzes action');
+        break;
+      default:
+        console.log('Sidebar action:', action, data);
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-gray-50 p-4">
+    <RoleLayout role="student" onAction={handleSidebarAction}>
       {loading ? (
-        <div className="flex items-center justify-center min-h-screen">
+        <div className="flex items-center justify-center min-h-screen w-full">
           <div className="text-lg">Loading...</div>
         </div>
       ) : (
-        <div className="max-w-7xl mx-auto">
-          <div className="mb-8">
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">
-              Welcome, Student!
-            </h1>
-            <p className="text-gray-600">
-              Ready to learn? Join your teacher's room or explore learning
-              materials.
-            </p>
-          </div>
-
+        <>
           {toast && (
-            <div className="rounded-md bg-red-50 text-red-800 border border-red-200 px-3 py-2 text-sm w-fit mb-4">
+            <div className="fixed top-4 right-4 z-50 rounded-md bg-red-50 text-red-800 border border-red-200 px-3 py-2 text-sm">
               {toast}
             </div>
           )}
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {gridCards.map((card, index) => (
-              <div
-                key={index}
-                className={`${card.bgColor} rounded-xl border border-gray-200 p-6 hover:shadow-lg transition-shadow duration-200`}
-              >
-                <div className="flex items-start space-x-4 mb-4">
-                  <div className="flex-shrink-0">{card.icon}</div>
-                  <div className="flex-1">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-1">
-                      {card.title}
-                    </h3>
-                    <p className="text-sm text-gray-600">{card.description}</p>
-                  </div>
-                </div>
-                <div className="mt-4">{card.content}</div>
-              </div>
-            ))}
-          </div>
-        </div>
+          <StudentDashboard onJoinRoom={(code) => handleComplete(code)} />
+        </>
       )}
-    </div>
+    </RoleLayout>
   );
 }

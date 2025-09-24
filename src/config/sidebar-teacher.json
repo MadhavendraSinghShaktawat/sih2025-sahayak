@@ -1,0 +1,140 @@
+{
+  "role": "teacher",
+  "sections": [
+    {
+      "id": "dashboard",
+      "label": "Dashboard",
+      "icon": "Home",
+      "panelContent": {
+        "type": "dashboard",
+        "title": "Teacher Dashboard",
+        "description": "Manage your teaching sessions and students",
+        "items": [
+          {
+            "id": "create-room",
+            "label": "Create Room",
+            "description": "Generate a room pass and share QR with students",
+            "icon": "PlusCircle",
+            "action": "createRoom"
+          },
+          {
+            "id": "invite-students",
+            "label": "Invite Students", 
+            "description": "Add student emails to whitelist",
+            "icon": "Users",
+            "action": "inviteStudents"
+          }
+        ]
+      }
+    },
+    {
+      "id": "tools",
+      "label": "Tools",
+      "icon": "BookOpen",
+      "panelContent": {
+        "type": "tools",
+        "title": "AI Tools",
+        "description": "Generate quizzes and educational content",
+        "items": [
+          {
+            "id": "quiz-generator",
+            "label": "Quiz Generator",
+            "description": "Create interactive quizzes from content",
+            "icon": "FileText",
+            "action": "generateQuiz"
+          },
+          {
+            "id": "content-analyzer",
+            "label": "Content Analyzer",
+            "description": "Analyze and summarize educational materials",
+            "icon": "Search",
+            "action": "analyzeContent"
+          }
+        ]
+      }
+    },
+    {
+      "id": "students",
+      "label": "Students",
+      "icon": "Users",
+      "panelContent": {
+        "type": "students",
+        "title": "Student Management",
+        "description": "Manage your students and track progress",
+        "items": [
+          {
+            "id": "student-list",
+            "label": "Student List",
+            "description": "View all enrolled students",
+            "icon": "List",
+            "action": "viewStudents"
+          },
+          {
+            "id": "progress-tracking",
+            "label": "Progress Tracking",
+            "description": "Monitor student learning progress",
+            "icon": "BarChart3",
+            "action": "trackProgress"
+          }
+        ]
+      }
+    },
+    {
+      "id": "analytics",
+      "label": "Analytics",
+      "icon": "BarChart3",
+      "panelContent": {
+        "type": "analytics",
+        "title": "Performance Analytics",
+        "description": "Track teaching effectiveness and student engagement",
+        "items": [
+          {
+            "id": "quiz-analytics",
+            "label": "Quiz Analytics",
+            "description": "Analyze quiz performance and completion rates",
+            "icon": "TrendingUp",
+            "action": "quizAnalytics"
+          },
+          {
+            "id": "engagement-metrics",
+            "label": "Engagement Metrics",
+            "description": "Monitor student participation and activity",
+            "icon": "Activity",
+            "action": "engagementMetrics"
+          }
+        ]
+      }
+    },
+    {
+      "id": "settings",
+      "label": "Settings",
+      "icon": "Settings",
+      "panelContent": {
+        "type": "settings",
+        "title": "Settings",
+        "description": "Configure your teaching preferences",
+        "items": [
+          {
+            "id": "profile-settings",
+            "label": "Profile Settings",
+            "description": "Update your profile information",
+            "icon": "User",
+            "action": "profileSettings"
+          },
+          {
+            "id": "notification-settings",
+            "label": "Notifications",
+            "description": "Manage notification preferences",
+            "icon": "Bell",
+            "action": "notificationSettings"
+          }
+        ]
+      }
+    }
+  ],
+  "logout": {
+    "label": "Logout",
+    "icon": "LogOut",
+    "action": "logout"
+  }
+}
