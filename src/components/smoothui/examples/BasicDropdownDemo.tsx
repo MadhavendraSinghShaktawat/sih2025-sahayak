@@ -1,15 +1,15 @@
-"use client"
+"use client";
 
-import React from "react"
+import React from "react";
 
-import BasicDropdown from "@/components/smoothui/ui/BasicDropdown"
+import BasicDropdown from "@/components/smoothui/ui/BasicDropdown";
 
 const items = [
   { id: 1, label: "Small" },
   { id: 2, label: "Medium" },
   { id: 3, label: "Large" },
   { id: 4, label: "Extra Large" },
-]
+];
 
 const DropdownDemo = () => {
   return (
@@ -21,7 +21,7 @@ const DropdownDemo = () => {
         onChange={(item) => console.log("Selected:", item.label)}
       />
     </div>
-  )
-}
+  );
+};
 
-export default DropdownDemo
+export default DropdownDemo;

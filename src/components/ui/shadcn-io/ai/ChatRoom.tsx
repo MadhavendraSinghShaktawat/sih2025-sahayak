@@ -7,22 +7,26 @@ import {
   Conversation,
   ConversationContent,
   ConversationScrollButton,
-} from "@/components/ui/shadcn-io/ai/conversation"
-import { Message, MessageAvatar, MessageContent } from "@/components/ui/shadcn-io/ai/message"
-import ButtonCopy from "@/components/smoothui/ui/ButtonCopy"
-import { QuizDisplay } from "@/components/QuizDisplay"
-import { QuizGenerationModal } from "@/components/smoothui/ui/QuizGenerationModal"
-import { SelectQuizModal } from "@/components/smoothui/ui/SelectQuizModal"
-import BasicDropdown from "@/components/smoothui/ui/BasicDropdown"
-import { BookOpen, UserPlus } from "lucide-react"
+} from "@/components/ui/shadcn-io/ai/conversation";
+import {
+  Message,
+  MessageAvatar,
+  MessageContent,
+} from "@/components/ui/shadcn-io/ai/message";
+import ButtonCopy from "@/components/smoothui/ui/ButtonCopy";
+import { QuizDisplay } from "@/components/QuizDisplay";
+import { QuizGenerationModal } from "@/components/smoothui/ui/QuizGenerationModal";
+import { SelectQuizModal } from "@/components/smoothui/ui/SelectQuizModal";
+import BasicDropdown from "@/components/smoothui/ui/BasicDropdown";
+import { BookOpen, UserPlus } from "lucide-react";
 
 type ChatMessage = {
-  id: string
-  text: string
-  name: string
-  avatar?: string
-  role: "teacher" | "student"
-}
+  id: string;
+  text: string;
+  name: string;
+  avatar?: string;
+  role: "teacher" | "student";
+};
 
 export function ChatRoom({
   roomId,
@@ -41,15 +45,21 @@ export function ChatRoom({
   onEndSession?: () => void;
   otp?: string;
 }) {
-  const [messages, setMessages] = React.useState<ChatMessage[]>([])
-  const [quizModal, setQuizModal] = React.useState<{ open: boolean; quizId?: string; quiz?: any }>(() => ({ open: false }))
-  const [showQuizModal, setShowQuizModal] = React.useState(false)
-  const [showSelectQuiz, setShowSelectQuiz] = React.useState(false)
-  const [input, setInput] = React.useState("")
-  const [loading, setLoading] = React.useState(true)
-  const channelRef = React.useRef<ReturnType<typeof supabase.channel> | null>(null)
-  const [displayName, setDisplayName] = React.useState(name ?? "")
-  const messagesEndRef = React.useRef<HTMLDivElement>(null)
+  const [messages, setMessages] = React.useState<ChatMessage[]>([]);
+  const [quizModal, setQuizModal] = React.useState<{
+    open: boolean;
+    quizId?: string;
+    quiz?: any;
+  }>(() => ({ open: false }));
+  const [showQuizModal, setShowQuizModal] = React.useState(false);
+  const [showSelectQuiz, setShowSelectQuiz] = React.useState(false);
+  const [input, setInput] = React.useState("");
+  const [loading, setLoading] = React.useState(true);
+  const channelRef = React.useRef<ReturnType<typeof supabase.channel> | null>(
+    null
+  );
+  const [displayName, setDisplayName] = React.useState(name ?? "");
+  const messagesEndRef = React.useRef<HTMLDivElement>(null);
 
   // Auto-scroll to bottom when messages change
   const scrollToBottom = () => {
@@ -84,7 +94,7 @@ export function ChatRoom({
           text: msg.text,
           name: msg.name,
           role: msg.role as "teacher" | "student",
-        }))
+        }));
 
         setMessages(dbMessages);
       } catch (err) {
@@ -118,7 +128,7 @@ export function ChatRoom({
             text: newMsg.text,
             name: newMsg.name,
             role: newMsg.role as "teacher" | "student",
-          }
+          };
           setMessages((prev) => {
             // Avoid duplicates by checking if message already exists
             const exists = prev.some((msg) => msg.id === chatMsg.id);
@@ -156,9 +166,9 @@ export function ChatRoom({
             text: msg.text,
             name: msg.name,
             role: msg.role as "teacher" | "student",
-          }))
-          
-          setMessages(prev => {
+          }));
+
+          setMessages((prev) => {
             // Only update if we have new messages
             if (dbMessages.length > prev.length) {
               console.log("Fallback: Found new messages via polling");
@@ -238,14 +248,14 @@ export function ChatRoom({
 
   function onKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
     if (e.key === "Enter" && !e.shiftKey) {
-      const trimmed = input.trim().toLowerCase()
+      const trimmed = input.trim().toLowerCase();
       if (role === "teacher" && trimmed.startsWith("/quiz")) {
-        e.preventDefault()
-        setShowQuizModal(true)
-        return
+        e.preventDefault();
+        setShowQuizModal(true);
+        return;
       }
-      e.preventDefault()
-      sendMessage()
+      e.preventDefault();
+      sendMessage();
     }
   }
 
@@ -318,8 +328,13 @@ export function ChatRoom({
             ) : (
               <>
                 {messages.map((m) => (
-                  <Message key={m.id} from={m.role === "teacher" ? "user" : "assistant"}>
-                    <MessageContent className="text-gray-800">{m.text}</MessageContent>
+                  <Message
+                    key={m.id}
+                    from={m.role === "teacher" ? "user" : "assistant"}
+                  >
+                    <MessageContent className="text-gray-800">
+                      {m.text}
+                    </MessageContent>
                     <MessageAvatar name={m.name} src={m.avatar || ""} />
                   </Message>
                 ))}
@@ -334,7 +349,12 @@ export function ChatRoom({
             <div className="max-w-3xl w-full rounded-xl bg-white p-4">
               <div className="flex items-center justify-between mb-3">
                 <div className="font-semibold">Quiz</div>
-                <button className="rounded-md border px-3 py-1 text-sm" onClick={() => setQuizModal({ open: false })}>Close</button>
+                <button
+                  className="rounded-md border px-3 py-1 text-sm"
+                  onClick={() => setQuizModal({ open: false })}
+                >
+                  Close
+                </button>
               </div>
               <QuizDisplay quiz={quizModal.quiz} />
             </div>
@@ -357,30 +377,42 @@ export function ChatRoom({
             </div>
           )}
           <div className="flex-1 flex gap-2 items-end">
-            {role === 'teacher' && (
+            {role === "teacher" && (
               <BasicDropdown
                 label="Actions"
                 className="w-28"
                 items={[
-                  { id: 'create_quiz', label: 'Create Quiz', icon: <BookOpen className="w-4 h-4"/> },
-                  { id: 'select_quiz', label: 'Select Quiz', icon: <BookOpen className="w-4 h-4"/> },
-                  { id: 'invite_students', label: 'Invite Students', icon: <UserPlus className="w-4 h-4"/> },
+                  {
+                    id: "create_quiz",
+                    label: "Create Quiz",
+                    icon: <BookOpen className="w-4 h-4" />,
+                  },
+                  {
+                    id: "select_quiz",
+                    label: "Select Quiz",
+                    icon: <BookOpen className="w-4 h-4" />,
+                  },
+                  {
+                    id: "invite_students",
+                    label: "Invite Students",
+                    icon: <UserPlus className="w-4 h-4" />,
+                  },
                 ]}
                 highlightId={(() => {
-                  const t = input.trim().toLowerCase()
-                  if (t.startsWith('/quiz')) return 'create_quiz'
-                  if (t.startsWith('/selectquiz')) return 'select_quiz'
-                  return undefined
+                  const t = input.trim().toLowerCase();
+                  if (t.startsWith("/quiz")) return "create_quiz";
+                  if (t.startsWith("/selectquiz")) return "select_quiz";
+                  return undefined;
                 })()}
                 onChange={(item) => {
-                  if (item.id === 'create_quiz') {
-                    setShowQuizModal(true)
+                  if (item.id === "create_quiz") {
+                    setShowQuizModal(true);
                   }
-                  if (item.id === 'select_quiz') {
-                    setShowSelectQuiz(true)
+                  if (item.id === "select_quiz") {
+                    setShowSelectQuiz(true);
                   }
-                  if (item.id === 'invite_students') {
-                    window.open('/teacher', '_self')
+                  if (item.id === "invite_students") {
+                    window.open("/teacher", "_self");
                   }
                 }}
               />

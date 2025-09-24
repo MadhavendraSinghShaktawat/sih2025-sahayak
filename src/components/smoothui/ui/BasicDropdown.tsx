@@ -1,21 +1,21 @@
-"use client"
+"use client";
 
-import { useEffect, useLayoutEffect, useRef, useState } from "react"
-import { ChevronDown } from "lucide-react"
-import { AnimatePresence, motion } from "motion/react"
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { ChevronDown } from "lucide-react";
+import { AnimatePresence, motion } from "motion/react";
 
 interface DropdownItem {
-  id: string | number
-  label: string
-  icon?: React.ReactNode
+  id: string | number;
+  label: string;
+  icon?: React.ReactNode;
 }
 
 interface BasicDropdownProps {
-  label: string
-  items: DropdownItem[]
-  onChange?: (item: DropdownItem) => void
-  className?: string
-  highlightId?: string | number
+  label: string;
+  items: DropdownItem[];
+  onChange?: (item: DropdownItem) => void;
+  className?: string;
+  highlightId?: string | number;
 }
 
 export default function BasicDropdown({
@@ -25,17 +25,17 @@ export default function BasicDropdown({
   className = "",
   highlightId,
 }: BasicDropdownProps) {
-  const [isOpen, setIsOpen] = useState(false)
-  const [selectedItem, setSelectedItem] = useState<DropdownItem | null>(null)
-  const dropdownRef = useRef<HTMLDivElement>(null)
-  const menuRef = useRef<HTMLDivElement>(null)
-  const [placement, setPlacement] = useState<"down" | "up">("down")
+  const [isOpen, setIsOpen] = useState(false);
+  const [selectedItem, setSelectedItem] = useState<DropdownItem | null>(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
+  const [placement, setPlacement] = useState<"down" | "up">("down");
 
   const handleItemSelect = (item: DropdownItem) => {
-    setSelectedItem(item)
-    setIsOpen(false)
-    onChange?.(item)
-  }
+    setSelectedItem(item);
+    setIsOpen(false);
+    onChange?.(item);
+  };
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -44,30 +44,30 @@ export default function BasicDropdown({
         dropdownRef.current &&
         !dropdownRef.current.contains(event.target as Node)
       ) {
-        setIsOpen(false)
+        setIsOpen(false);
       }
-    }
+    };
 
-    document.addEventListener("mousedown", handleClickOutside)
-    return () => document.removeEventListener("mousedown", handleClickOutside)
-  }, [])
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   // Choose placement based on available space
   useLayoutEffect(() => {
-    if (!isOpen) return
-    const trigger = dropdownRef.current
-    if (!trigger) return
-    const rect = trigger.getBoundingClientRect()
-    const viewportHeight = window.innerHeight
-    const estimatedMenuHeight = menuRef.current?.offsetHeight || 240 // fallback
-    const spaceBelow = viewportHeight - rect.bottom
-    const spaceAbove = rect.top
+    if (!isOpen) return;
+    const trigger = dropdownRef.current;
+    if (!trigger) return;
+    const rect = trigger.getBoundingClientRect();
+    const viewportHeight = window.innerHeight;
+    const estimatedMenuHeight = menuRef.current?.offsetHeight || 240; // fallback
+    const spaceBelow = viewportHeight - rect.bottom;
+    const spaceAbove = rect.top;
     if (spaceBelow < estimatedMenuHeight && spaceAbove > spaceBelow) {
-      setPlacement("up")
+      setPlacement("up");
     } else {
-      setPlacement("down")
+      setPlacement("down");
     }
-  }, [isOpen])
+  }, [isOpen]);
 
   return (
     <div ref={dropdownRef} className={`relative inline-block ${className}`}>
@@ -78,7 +78,7 @@ export default function BasicDropdown({
         <span className="block truncate">
           {selectedItem ? selectedItem.label : label}
         </span>
-          <motion.div
+        <motion.div
           animate={{ rotate: isOpen ? 180 : 0 }}
           transition={{ duration: 0.2 }}
         >
@@ -91,7 +91,9 @@ export default function BasicDropdown({
           <motion.div
             ref={menuRef}
             className={`bg-white absolute left-0 z-10 w-full rounded-lg border shadow-lg ${
-              placement === "down" ? "mt-1 origin-top" : "mb-1 bottom-full origin-bottom"
+              placement === "down"
+                ? "mt-1 origin-top"
+                : "mb-1 bottom-full origin-bottom"
             }`}
             initial={{ opacity: 0, y: -10, scaleY: 0.8 }}
             animate={{ opacity: 1, y: 0, scaleY: 1 }}
@@ -130,7 +132,8 @@ export default function BasicDropdown({
                     {item.icon && <span className="mr-2">{item.icon}</span>}
                     {item.label}
 
-                    {(selectedItem?.id === item.id || highlightId === item.id) && (
+                    {(selectedItem?.id === item.id ||
+                      highlightId === item.id) && (
                       <motion.span
                         className="ml-auto"
                         initial={{ scale: 0 }}
@@ -164,5 +167,5 @@ export default function BasicDropdown({
         )}
       </AnimatePresence>
     </div>
-  )
+  );
 }

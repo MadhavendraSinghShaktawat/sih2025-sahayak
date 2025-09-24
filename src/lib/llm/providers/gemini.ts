@@ -6,7 +6,7 @@ import {
   Question,
   QuizMetadata,
 } from "../types";
-import { supabase } from '../../supabaseClient'
+import { supabase } from "../../supabaseClient";
 
 export class GeminiProvider implements LLMProvider {
   name = "gemini";
@@ -27,17 +27,19 @@ export class GeminiProvider implements LLMProvider {
 
     try {
       // Get the current session token
-      const { data: { session } } = await supabase.auth.getSession()
-      
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+
       if (!session?.access_token) {
-        throw new Error('User not authenticated')
+        throw new Error("User not authenticated");
       }
 
-      const response = await fetch('/api/generate-quiz', {
-        method: 'POST',
+      const response = await fetch("/api/generate-quiz", {
+        method: "POST",
         headers: {
           "Content-Type": "application/json",
-          'Authorization': `Bearer ${session.access_token}`
+          Authorization: `Bearer ${session.access_token}`,
         },
         body: JSON.stringify(request),
       });
