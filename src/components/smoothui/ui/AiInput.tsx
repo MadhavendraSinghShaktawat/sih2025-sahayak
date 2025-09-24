@@ -1,62 +1,68 @@
-"use client"
+"use client";
 
-import React from "react"
-import { cx } from "class-variance-authority"
-import { AnimatePresence, motion } from "motion/react"
-import { cn } from "@/lib/utils/cn"
+import React from "react";
+import { cx } from "class-variance-authority";
+import { AnimatePresence, motion } from "motion/react";
+import { cn } from "@/lib/utils/cn";
 
-import { Button } from "@/components/ui/button"
-import { useClickOutside } from "@/hooks/use-click-outside"
-import SiriOrb from "@/components/smoothui/ui/SiriOrb"
+import { Button } from "@/components/ui/button";
+import { useClickOutside } from "@/hooks/use-click-outside";
+import SiriOrb from "@/components/smoothui/ui/SiriOrb";
 
-const SPEED = 1
+const SPEED = 1;
 
 interface FooterContext {
-  showFeedback: boolean
-  success: boolean
-  openFeedback: () => void
-  closeFeedback: () => void
+  showFeedback: boolean;
+  success: boolean;
+  openFeedback: () => void;
+  closeFeedback: () => void;
 }
 
-const FooterContext = React.createContext({} as FooterContext)
-const useFooter = () => React.useContext(FooterContext)
+const FooterContext = React.createContext({} as FooterContext);
+const useFooter = () => React.useContext(FooterContext);
 
 interface MorphSurfaceProps {
-  onInputChange?: (value: string, cursorPos: number) => void
-  onKeyDown?: (e: React.KeyboardEvent<HTMLTextAreaElement>) => void
-  value?: string
-  textareaRef?: React.RefObject<HTMLTextAreaElement | null>
-  isValidCommand?: boolean
+  onInputChange?: (value: string, cursorPos: number) => void;
+  onKeyDown?: (e: React.KeyboardEvent<HTMLTextAreaElement>) => void;
+  value?: string;
+  textareaRef?: React.RefObject<HTMLTextAreaElement | null>;
+  isValidCommand?: boolean;
 }
 
-export function MorphSurface({ onInputChange, onKeyDown: onKeyDownProp, value, textareaRef, isValidCommand }: MorphSurfaceProps = {}) {
-  const rootRef = React.useRef<HTMLDivElement>(null)
+export function MorphSurface({
+  onInputChange,
+  onKeyDown: onKeyDownProp,
+  value,
+  textareaRef,
+  isValidCommand,
+}: MorphSurfaceProps = {}) {
+  const rootRef = React.useRef<HTMLDivElement>(null);
 
-  const feedbackRef = React.useRef<HTMLTextAreaElement | null>(null)
-  const [showFeedback, setShowFeedback] = React.useState(false)
-  const [success, setSuccess] = React.useState(false)
+  const feedbackRef = React.useRef<HTMLTextAreaElement | null>(null);
+  const [showFeedback, setShowFeedback] = React.useState(false);
+  const [success, setSuccess] = React.useState(false);
 
   const closeFeedback = React.useCallback(() => {
-    setShowFeedback(false)
-    feedbackRef.current?.blur()
-  }, [])
+    setShowFeedback(false);
+    feedbackRef.current?.blur();
+  }, []);
 
   const openFeedback = React.useCallback(() => {
-    setShowFeedback(true)
+    setShowFeedback(true);
     setTimeout(() => {
-      feedbackRef.current?.focus()
-    })
-  }, [])
+      feedbackRef.current?.focus();
+    });
+  }, []);
 
   const onFeedbackSuccess = React.useCallback(() => {
-    closeFeedback()
-    setSuccess(true)
+    closeFeedback();
+    setSuccess(true);
     setTimeout(() => {
-      setSuccess(false)
-    }, 1500)
-  }, [closeFeedback])
+      setSuccess(false);
+    }, 1500);
+  }, [closeFeedback]);
 
-  useClickOutside(rootRef, closeFeedback)
+  useClickOutside(rootRef, closeFeedback);
 
   const context = React.useMemo(
     () => ({
@@ -66,7 +72,7 @@ export function MorphSurface({ onInputChange, onKeyDown: onKeyDownProp, value, t
       closeFeedback,
     }),
     [showFeedback, success, openFeedback, closeFeedback]
-  )
+  );
 
   return (
     <div
@@ -98,23 +104,23 @@ export function MorphSurface({ onInputChange, onKeyDown: onKeyDownProp, value, t
       >
         <FooterContext.Provider value={context}>
           <Dock />
-          <Feedback 
-          ref={feedbackRef} 
-          onSuccess={onFeedbackSuccess}
-          onInputChange={onInputChange}
-          onKeyDown={onKeyDownProp}
-          value={value}
-          textareaRef={textareaRef}
-          isValidCommand={isValidCommand}
-        />
+          <Feedback
+            ref={feedbackRef}
+            onSuccess={onFeedbackSuccess}
+            onInputChange={onInputChange}
+            onKeyDown={onKeyDownProp}
+            value={value}
+            textareaRef={textareaRef}
+            isValidCommand={isValidCommand}
+          />
         </FooterContext.Provider>
       </motion.div>
     </div>
-  )
+  );
 }
 
 function Dock() {
-  const { showFeedback, openFeedback } = useFooter()
+  const { showFeedback, openFeedback } = useFooter();
   return (
     <footer className="mt-auto flex h-[44px] items-center justify-center whitespace-nowrap select-none">
       <div className="flex items-center justify-center gap-2 px-3 max-sm:h-10 max-sm:px-2">
@@ -157,11 +163,11 @@ function Dock() {
         </Button>
       </div>
     </footer>
-  )
+  );
 }
 
-const FEEDBACK_WIDTH = 360
-const FEEDBACK_HEIGHT = 200
+const FEEDBACK_WIDTH = 360;
+const FEEDBACK_HEIGHT = 200;
 
 function Feedback({
   ref,
@@ -172,42 +178,41 @@ function Feedback({
   textareaRef,
   isValidCommand,
 }: {
-  ref: React.Ref<HTMLTextAreaElement>
-  onSuccess: () => void
-  onInputChange?: (value: string, cursorPos: number) => void
-  onKeyDown?: (e: React.KeyboardEvent<HTMLTextAreaElement>) => void
-  value?: string
-  textareaRef?: React.RefObject<HTMLTextAreaElement | null>
-  isValidCommand?: boolean
+  ref: React.Ref<HTMLTextAreaElement>;
+  onSuccess: () => void;
+  onInputChange?: (value: string, cursorPos: number) => void;
+  onKeyDown?: (e: React.KeyboardEvent<HTMLTextAreaElement>) => void;
+  value?: string;
+  textareaRef?: React.RefObject<HTMLTextAreaElement | null>;
+  isValidCommand?: boolean;
 }) {
-  const { closeFeedback, showFeedback } = useFooter()
-  const submitRef = React.useRef<HTMLButtonElement>(null)
-  
+  const { closeFeedback, showFeedback } = useFooter();
+  const submitRef = React.useRef<HTMLButtonElement>(null);
+
   // Debug: console.log('Feedback component isValidCommand:', isValidCommand)
-  
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault()
-    onSuccess()
+    e.preventDefault();
+    onSuccess();
   }
 
   function onKeyDown(e: React.KeyboardEvent<HTMLTextAreaElement>) {
     // Call the prop handler first
-    onKeyDownProp?.(e)
-    
+    onKeyDownProp?.(e);
+
     if (e.key === "Escape") {
-      closeFeedback()
+      closeFeedback();
     }
     if (e.key === "Enter" && e.metaKey) {
-      e.preventDefault()
-      submitRef.current?.click()
+      e.preventDefault();
+      submitRef.current?.click();
     }
   }
 
   function handleInputChange(e: React.ChangeEvent<HTMLTextAreaElement>) {
-    const textarea = e.target
-    const cursorPos = textarea.selectionStart
-    onInputChange?.(e.target.value, cursorPos)
+    const textarea = e.target;
+    const cursorPos = textarea.selectionStart;
+    onInputChange?.(e.target.value, cursorPos);
   }
 
   return (
@@ -255,9 +260,9 @@ function Feedback({
                 "bg-white h-full w-full resize-none scroll-py-2 rounded-md p-4 outline-0 transition-colors",
                 isValidCommand && "text-blue-600"
               )}
-              style={{ 
-                color: isValidCommand ? '#2563eb' : 'inherit',
-                fontWeight: isValidCommand ? '600' : 'normal'
+              style={{
+                color: isValidCommand ? "#2563eb" : "inherit",
+                fontWeight: isValidCommand ? "600" : "normal",
               }}
               required
               onKeyDown={onKeyDown}
@@ -287,21 +292,21 @@ function Feedback({
         )}
       </AnimatePresence>
     </form>
-  )
+  );
 }
 
 const LOGO_SPRING = {
   type: "spring",
   stiffness: 350 / SPEED,
   damping: 35,
-} as const
+} as const;
 
 function Kbd({
   children,
   className,
 }: {
-  children: string
-  className?: string
+  children: string;
+  className?: string;
 }) {
   return (
     <kbd
@@ -312,8 +317,8 @@ function Kbd({
     >
       {children}
     </kbd>
-  )
+  );
 }
 
 // Add default export for lazy loading
-export default MorphSurface
+export default MorphSurface;

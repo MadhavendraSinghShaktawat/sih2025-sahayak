@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import React from 'react';
-import { motion, Transition } from 'framer-motion';
+import React from "react";
+import { motion, Transition } from "framer-motion";
 
 type JellyLoaderProps = {
   numberOfCubes?: number;
@@ -9,21 +9,21 @@ type JellyLoaderProps = {
 
 const JellyLoader = ({ numberOfCubes = 8 }: JellyLoaderProps) => {
   const colors = [
-    '#FFE4E1',
-    '#FFB6C1',
-    '#FF8A95',
-    '#FF6B8A',
-    '#E91E63',
-    '#C2185B',
-    '#AD1457',
-    '#880E4F'
+    "#FFE4E1",
+    "#FFB6C1",
+    "#FF8A95",
+    "#FF6B8A",
+    "#E91E63",
+    "#C2185B",
+    "#AD1457",
+    "#880E4F",
   ];
 
   const transition: Transition = {
     duration: 1.5,
     repeat: Infinity,
     repeatDelay: 0.5,
-    ease: 'easeOut'
+    ease: "easeOut",
   };
 
   return (
@@ -41,13 +41,13 @@ const JellyLoader = ({ numberOfCubes = 8 }: JellyLoaderProps) => {
               y,
               zIndex: numberOfCubes - index,
               backgroundColor: colors[index],
-              opacity: 1 - index * 0.05
+              opacity: 1 - index * 0.05,
             }}
             initial={{ scale: 1 }}
             animate={{ scale: [1, 0.75, 1], rotate: [0, 360] }}
             transition={{
               ...transition,
-              delay: index * 0.05
+              delay: index * 0.05,
             }}
           >
             {/* <motion.span

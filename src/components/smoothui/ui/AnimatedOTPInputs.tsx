@@ -1,19 +1,19 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import { OTPInput, OTPInputContext } from "input-otp"
-import { MinusIcon } from "lucide-react"
-import { AnimatePresence, motion } from "motion/react"
+import * as React from "react";
+import { OTPInput, OTPInputContext } from "input-otp";
+import { MinusIcon } from "lucide-react";
+import { AnimatePresence, motion } from "motion/react";
 
-import { cn } from "@/lib/utils"
+import { cn } from "@/lib/utils";
 
 interface AnimatedInputOTPProps {
-  containerClassName?: string
-  value?: string
-  onChange?: (value: string) => void
-  onComplete?: (value: string) => void
-  maxLength?: number
-  className?: string
+  containerClassName?: string;
+  value?: string;
+  onChange?: (value: string) => void;
+  onComplete?: (value: string) => void;
+  maxLength?: number;
+  className?: string;
 }
 
 function AnimatedInputOTP({
@@ -28,9 +28,9 @@ function AnimatedInputOTP({
 }: AnimatedInputOTPProps & { children: React.ReactNode }) {
   const handleChange = (newValue: string) => {
     // Only allow numeric characters
-    const numericValue = newValue.replace(/[^0-9]/g, "")
-    onChange?.(numericValue)
-  }
+    const numericValue = newValue.replace(/[^0-9]/g, "");
+    onChange?.(numericValue);
+  };
 
   return (
     <OTPInput
@@ -48,7 +48,7 @@ function AnimatedInputOTP({
     >
       {children}
     </OTPInput>
-  )
+  );
 }
 
 function AnimatedInputOTPGroup({
@@ -67,11 +67,11 @@ function AnimatedInputOTPGroup({
       }}
       {...(props as any)}
     />
-  )
+  );
 }
 
 interface AnimatedInputOTPSlotProps extends React.ComponentProps<"div"> {
-  index: number
+  index: number;
 }
 
 function AnimatedInputOTPSlot({
@@ -79,17 +79,17 @@ function AnimatedInputOTPSlot({
   className,
   ...props
 }: AnimatedInputOTPSlotProps) {
-  const inputOTPContext = React.useContext(OTPInputContext)
-  const { char, hasFakeCaret, isActive } = inputOTPContext?.slots[index] ?? {}
-  const [isFilled, setIsFilled] = React.useState(false)
+  const inputOTPContext = React.useContext(OTPInputContext);
+  const { char, hasFakeCaret, isActive } = inputOTPContext?.slots[index] ?? {};
+  const [isFilled, setIsFilled] = React.useState(false);
 
   React.useEffect(() => {
     if (char && !isFilled) {
-      setIsFilled(true)
+      setIsFilled(true);
     } else if (!char && isFilled) {
-      setIsFilled(false)
+      setIsFilled(false);
     }
-  }, [char, isFilled])
+  }, [char, isFilled]);
 
   return (
     <motion.div
@@ -162,7 +162,7 @@ function AnimatedInputOTPSlot({
         </motion.div>
       )}
     </motion.div>
-  )
+  );
 }
 
 function AnimatedInputOTPSeparator({ ...props }: React.ComponentProps<"div">) {
@@ -180,7 +180,7 @@ function AnimatedInputOTPSeparator({ ...props }: React.ComponentProps<"div">) {
     >
       <MinusIcon className="text-muted-foreground h-4 w-4" />
     </motion.div>
-  )
+  );
 }
 
 // Main component that combines everything
@@ -213,7 +213,7 @@ export function AnimatedOTPInput({
         <AnimatedInputOTPSlot index={5} />
       </AnimatedInputOTPGroup>
     </AnimatedInputOTP>
-  )
+  );
 }
 
 export {
@@ -221,6 +221,6 @@ export {
   AnimatedInputOTPGroup,
   AnimatedInputOTPSlot,
   AnimatedInputOTPSeparator,
-}
+};
 
-export default AnimatedOTPInput
+export default AnimatedOTPInput;

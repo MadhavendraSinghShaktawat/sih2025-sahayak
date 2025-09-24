@@ -1,17 +1,17 @@
-"use client"
+"use client";
 
-import { cn } from "@/lib/utils/cn"
+import { cn } from "@/lib/utils/cn";
 
 interface SiriOrbProps {
-  size?: string
-  className?: string
+  size?: string;
+  className?: string;
   colors?: {
-    bg?: string
-    c1?: string
-    c2?: string
-    c3?: string
-  }
-  animationDuration?: number
+    bg?: string;
+    c1?: string;
+    c2?: string;
+    c3?: string;
+  };
+  animationDuration?: number;
 }
 
 const SiriOrb: React.FC<SiriOrbProps> = ({
@@ -25,33 +25,33 @@ const SiriOrb: React.FC<SiriOrbProps> = ({
     c1: "oklch(75% 0.15 350)", // Pastel pink
     c2: "oklch(80% 0.12 200)", // Pastel blue
     c3: "oklch(78% 0.14 280)", // Pastel purple/lavender
-  }
+  };
 
-  const finalColors = { ...defaultColors, ...colors }
+  const finalColors = { ...defaultColors, ...colors };
 
   // Extract numeric value from size for calculations
-  const sizeValue = parseInt(size.replace("px", ""), 10)
+  const sizeValue = parseInt(size.replace("px", ""), 10);
 
   // Responsive calculations based on size
   const blurAmount =
     sizeValue < 50
       ? Math.max(sizeValue * 0.008, 1) // Reduced blur for small sizes
-      : Math.max(sizeValue * 0.015, 4)
+      : Math.max(sizeValue * 0.015, 4);
 
   const contrastAmount =
     sizeValue < 50
       ? Math.max(sizeValue * 0.004, 1.2) // Reduced contrast for small sizes
-      : Math.max(sizeValue * 0.008, 1.5)
+      : Math.max(sizeValue * 0.008, 1.5);
 
   const dotSize =
     sizeValue < 50
       ? Math.max(sizeValue * 0.004, 0.05) // Smaller dots for small sizes
-      : Math.max(sizeValue * 0.008, 0.1)
+      : Math.max(sizeValue * 0.008, 0.1);
 
   const shadowSpread =
     sizeValue < 50
       ? Math.max(sizeValue * 0.004, 0.5) // Reduced shadow for small sizes
-      : Math.max(sizeValue * 0.008, 2)
+      : Math.max(sizeValue * 0.008, 2);
 
   // Adjust mask radius based on size to reduce black center in small sizes
   const maskRadius =
@@ -61,7 +61,7 @@ const SiriOrb: React.FC<SiriOrbProps> = ({
         ? "5%"
         : sizeValue < 100
           ? "15%"
-          : "25%"
+          : "25%";
 
   // Use more subtle contrast for very small sizes
   const finalContrast =
@@ -69,7 +69,7 @@ const SiriOrb: React.FC<SiriOrbProps> = ({
       ? 1.1 // Very subtle contrast for tiny sizes
       : sizeValue < 50
         ? Math.max(contrastAmount * 1.2, 1.3) // Reduced contrast for small sizes
-        : contrastAmount
+        : contrastAmount;
 
   return (
     <div
@@ -199,7 +199,7 @@ const SiriOrb: React.FC<SiriOrbProps> = ({
         }
       `}</style>
     </div>
-  )
-}
+  );
+};
 
-export default SiriOrb
+export default SiriOrb;

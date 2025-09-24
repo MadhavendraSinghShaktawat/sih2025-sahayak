@@ -1,41 +1,41 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import { CheckCircle, RefreshCw } from "lucide-react"
-import { motion } from "motion/react"
+import * as React from "react";
+import { CheckCircle, RefreshCw } from "lucide-react";
+import { motion } from "motion/react";
 
-import { Button } from "@/components/ui/button"
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
+} from "@/components/ui/card";
 
-import { AnimatedOTPInput } from "../ui/AnimatedOTPInputs"
+import { AnimatedOTPInput } from "../ui/AnimatedOTPInputs";
 
 export function AnimatedOTPInputDemo() {
-  const [value, setValue] = React.useState("")
-  const [isComplete, setIsComplete] = React.useState(false)
-  const [isLoading, setIsLoading] = React.useState(false)
+  const [value, setValue] = React.useState("");
+  const [isComplete, setIsComplete] = React.useState(false);
+  const [isLoading, setIsLoading] = React.useState(false);
 
   const handleComplete = (otp: string) => {
-    setValue(otp)
-    setIsComplete(true)
-    setIsLoading(true)
+    setValue(otp);
+    setIsComplete(true);
+    setIsLoading(true);
 
     // Simulate verification process
     setTimeout(() => {
-      setIsLoading(false)
-    }, 2000)
-  }
+      setIsLoading(false);
+    }, 2000);
+  };
 
   const handleReset = () => {
-    setValue("")
-    setIsComplete(false)
-    setIsLoading(false)
-  }
+    setValue("");
+    setIsComplete(false);
+    setIsLoading(false);
+  };
 
   return (
     <div className="flex min-h-[400px] flex-col items-center justify-center p-6">
@@ -87,7 +87,7 @@ export function AnimatedOTPInputDemo() {
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }
 
-export default AnimatedOTPInputDemo
+export default AnimatedOTPInputDemo;
