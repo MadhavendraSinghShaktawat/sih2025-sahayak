@@ -27,6 +27,8 @@ import { supabase } from '@/lib/supabaseClient';
 import AiInputDemo, { AiInputDemoRef } from '@/components/smoothui/examples/AiInputDemo';
 import LanguageSwitcher from '@/components/common/language-switcher';
 import { useQuizAnalytics } from '@/hooks/useQuizAnalytics';
+import OptionsHeatmap from '@/components/analytics/OptionsHeatmap';
+import MiniTrend from '@/components/analytics/MiniTrend';
 
 type TeacherDashboardProps = {
   teacherId: string;
@@ -311,6 +313,9 @@ export default function TeacherDashboard({ teacherId, teacherName, onCreateRoom,
                 <div className="text-2xl font-bold text-gray-900">{totalStudents}</div>
                 <div className="text-sm text-gray-600">{t("dashboard.teacher.totalStudents")}</div>
               </div>
+              <div className="ml-auto w-24">
+                <MiniTrend data={[2,3,3,3,3,3,3]} type="line" color="#3b82f6" />
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -324,6 +329,9 @@ export default function TeacherDashboard({ teacherId, teacherName, onCreateRoom,
               <div>
                 <div className="text-2xl font-bold text-gray-900">{activeRooms}</div>
                 <div className="text-sm text-gray-600">{t("dashboard.teacher.activeRooms")}</div>
+              </div>
+              <div className="ml-auto w-24">
+                <MiniTrend data={[0,1,1,1,1,1,1]} type="bar" color="#10b981" />
               </div>
             </div>
           </CardContent>
@@ -341,6 +349,9 @@ export default function TeacherDashboard({ teacherId, teacherName, onCreateRoom,
                 </div>
                 <div className="text-sm text-gray-600">{t("dashboard.teacher.quizCompletions")}</div>
               </div>
+              <div className="ml-auto w-24">
+                <MiniTrend data={[0,0,1,1,1,1,1]} type="area" color="#8b5cf6" />
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -356,6 +367,9 @@ export default function TeacherDashboard({ teacherId, teacherName, onCreateRoom,
                   {analyticsLoading ? '...' : `${analytics?.averageScore || 0}%`}
                 </div>
                 <div className="text-sm text-gray-600">{t("dashboard.teacher.avgScore")}</div>
+              </div>
+              <div className="ml-auto w-24">
+                <MiniTrend data={[0,60,70,65,67,67,67]} type="line" color="#fb923c" />
               </div>
             </div>
           </CardContent>
@@ -475,6 +489,11 @@ export default function TeacherDashboard({ teacherId, teacherName, onCreateRoom,
             </div>
           ) : analytics && analytics.totalResponses > 0 ? (
             <div className="space-y-6">
+              {/* Option Distribution Heatmap */}
+              <div>
+                <h3 className="text-lg font-semibold mb-4">Option Selection Heatmap</h3>
+                <OptionsHeatmap teacherId={teacherId} />
+              </div>
               {/* Top Performing Quizzes */}
               <div>
                 <h3 className="text-lg font-semibold mb-4">Top Performing Quizzes</h3>
