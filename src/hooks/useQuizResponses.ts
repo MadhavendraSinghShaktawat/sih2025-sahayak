@@ -1,6 +1,14 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabaseClient';
 
+interface WrongAnswer {
+  questionId: string;
+  questionText: string;
+  studentAnswer: string | number;
+  correctAnswer: string | number;
+  timestamp: number;
+}
+
 interface QuizResponse {
   id: string;
   quiz_id: string;
@@ -11,6 +19,7 @@ interface QuizResponse {
   total_questions: number;
   completed_at: string;
   time_taken: number;
+  wrong_answers?: WrongAnswer[];
   quiz: {
     title: string;
     subject: string;

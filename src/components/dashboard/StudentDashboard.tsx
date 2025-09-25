@@ -468,47 +468,71 @@ export default function StudentDashboard({ onJoinRoom }: StudentDashboardProps) 
           ) : (
             <div className="space-y-4">
               {quizResponses.map((response) => (
-                <div key={response.id} className="flex items-center gap-4 p-4 border border-gray-200 rounded-lg hover:bg-gray-50">
-                  <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-                    <BookOpen className="w-6 h-6 text-blue-600" />
-                  </div>
-                  <div className="flex-1">
-                    <div className="font-semibold text-gray-900">{response.quiz.title}</div>
-                    <div className="text-sm text-gray-600">
-                      {response.quiz.subject} • Room {response.room.passcode}
+                <div key={response.id} className="space-y-3">
+                  {/* Quiz Summary */}
+                  <div className="flex items-center gap-4 p-4 border border-gray-200 rounded-lg hover:bg-gray-50">
+                    <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+                      <BookOpen className="w-6 h-6 text-blue-600" />
                     </div>
-                    <div className="text-xs text-gray-500 mt-1">
-                      Completed {new Date(response.completed_at).toLocaleDateString()}
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-4">
-                    <div className="text-center">
-                      <div className="text-lg font-bold text-gray-900">
-                        {response.score}/{response.total_questions}
+                    <div className="flex-1">
+                      <div className="font-semibold text-gray-900">{response.quiz.title}</div>
+                      <div className="text-sm text-gray-600">
+                        {response.quiz.subject} • Room {response.room.passcode}
                       </div>
-                      <div className="text-xs text-gray-500">Score</div>
-                    </div>
-                    <div className="text-center">
-                      <div className="text-lg font-bold text-gray-900">
-                        {Math.round((response.score / response.total_questions) * 100)}%
+                      <div className="text-xs text-gray-500 mt-1">
+                        Completed {new Date(response.completed_at).toLocaleDateString()}
                       </div>
-                      <div className="text-xs text-gray-500">Percentage</div>
                     </div>
-                    <div className="text-center">
-                      <div className="text-lg font-bold text-gray-900">
-                        {Math.floor(response.time_taken / 60)}:{(response.time_taken % 60).toString().padStart(2, '0')}
+                    <div className="flex items-center gap-4">
+                      <div className="text-center">
+                        <div className="text-lg font-bold text-gray-900">
+                          {response.score}/{response.total_questions}
+                        </div>
+                        <div className="text-xs text-gray-500">Score</div>
                       </div>
-                      <div className="text-xs text-gray-500">Time</div>
-                    </div>
-                    <div className={`px-3 py-1 rounded-full text-xs font-medium ${
-                      (response.score / response.total_questions) >= 0.8 ? 'bg-green-100 text-green-800' :
-                      (response.score / response.total_questions) >= 0.6 ? 'bg-yellow-100 text-yellow-800' :
-                      'bg-red-100 text-red-800'
-                    }`}>
-                      {(response.score / response.total_questions) >= 0.8 ? 'Excellent' :
-                       (response.score / response.total_questions) >= 0.6 ? 'Good' : 'Needs Improvement'}
+                      <div className="text-center">
+                        <div className="text-lg font-bold text-gray-900">
+                          {Math.round((response.score / response.total_questions) * 100)}%
+                        </div>
+                        <div className="text-xs text-gray-500">Percentage</div>
+                      </div>
+                      <div className="text-center">
+                        <div className="text-lg font-bold text-gray-900">
+                          {Math.floor(response.time_taken / 60)}:{(response.time_taken % 60).toString().padStart(2, '0')}
+                        </div>
+                        <div className="text-xs text-gray-500">Time</div>
+                      </div>
+                      <div className={`px-3 py-1 rounded-full text-xs font-medium ${
+                        (response.score / response.total_questions) >= 0.8 ? 'bg-green-100 text-green-800' :
+                        (response.score / response.total_questions) >= 0.6 ? 'bg-yellow-100 text-yellow-800' :
+                        'bg-red-100 text-red-800'
+                      }`}>
+                        {(response.score / response.total_questions) >= 0.8 ? 'Excellent' :
+                         (response.score / response.total_questions) >= 0.6 ? 'Good' : 'Needs Improvement'}
+                      </div>
                     </div>
                   </div>
+                  
+                  {/* Wrong Answers for this quiz */}
+                  {response.wrong_answers && response.wrong_answers.length > 0 && (
+                    <div className="ml-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Target className="w-4 h-4 text-red-600" />
+                        <span className="text-sm font-medium text-red-800">Wrong Answers ({response.wrong_answers.length})</span>
+                      </div>
+                      <div className="space-y-2">
+                        {response.wrong_answers.map((wrongAnswer, index) => (
+                          <div key={index} className="text-xs text-red-700">
+                            <div className="font-medium">{wrongAnswer.questionText}</div>
+                            <div className="mt-1">
+                              <span className="text-red-600">Your answer:</span> "{wrongAnswer.studentAnswer}" 
+                              <span className="text-red-500 ml-2">Correct answer:</span> "{wrongAnswer.correctAnswer}"
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
               ))}
             </div>

@@ -237,6 +237,9 @@ function calculateAnalytics(responses: any[]) {
       roomName: response.room?.passcode ? `Room ${response.room.passcode}` : "Unknown Room"
     }));
 
+  // Wrong answer analytics
+  const wrongAnswerStats = calculateWrongAnswerStats(responses);
+
   return {
     totalResponses,
     averageScore: Math.round(averageScore * 100) / 100,
@@ -244,6 +247,94 @@ function calculateAnalytics(responses: any[]) {
     completionRate: 100, // All responses are completed
     quizStats: quizStats.sort((a, b) => b.totalResponses - a.totalResponses),
     studentStats: studentStats.sort((a, b) => b.averageScore - a.averageScore),
-    recentActivity
+    recentActivity,
+    wrongAnswerStats
+  };
+}
+
+function calculateWrongAnswerStats(responses: any[]) {
+  const wrongAnswerMap = new Map();
+  const studentWrongAnswers = new Map();
+  const quizWrongAnswers = new Map();
+  
+  let totalWrongAnswers = 0;
+  
+  responses.forEach(response => {
+    // Handle both wrong_answers and wrongAnswers (for backward compatibility)
+    const wrongAnswers = response.wrong_answers || response.wrongAnswers || [];
+    totalWrongAnswers += wrongAnswers.length;
+    
+    // Track wrong answers by question
+    wrongAnswers.forEach((wrongAnswer: any) => {
+      const key = `${response.quiz_id}-${wrongAnswer.questionId}`;
+      if (!wrongAnswerMap.has(key)) {
+        wrongAnswerMap.set(key, {
+          questionId: wrongAnswer.questionId,
+          questionText: wrongAnswer.questionText,
+          quizId: response.quiz_id,
+          quizTitle: response.quiz?.title || "Unknown Quiz",
+          totalWrong: 0,
+          wrongAnswers: []
+        });
+      }
+      
+      const questionStats = wrongAnswerMap.get(key);
+      questionStats.totalWrong++;
+      questionStats.wrongAnswers.push({
+        studentAnswer: wrongAnswer.studentAnswer,
+        correctAnswer: wrongAnswer.correctAnswer,
+        studentName: response.student?.name || "Unknown Student",
+        timestamp: wrongAnswer.timestamp
+      });
+    });
+    
+    // Track wrong answers by student
+    const studentId = response.student_id;
+    const studentName = response.student?.name || "Unknown Student";
+    if (!studentWrongAnswers.has(studentId)) {
+      studentWrongAnswers.set(studentId, {
+        studentId,
+        studentName,
+        totalWrongAnswers: 0,
+        wrongAnswers: []
+      });
+    }
+    
+    const studentStats = studentWrongAnswers.get(studentId);
+    studentStats.totalWrongAnswers += wrongAnswers.length;
+    studentStats.wrongAnswers.push(...wrongAnswers.map((wa: any) => ({
+      ...wa,
+      quizTitle: response.quiz?.title || "Unknown Quiz"
+    })));
+    
+    // Track wrong answers by quiz
+    const quizId = response.quiz_id;
+    const quizTitle = response.quiz?.title || "Unknown Quiz";
+    if (!quizWrongAnswers.has(quizId)) {
+      quizWrongAnswers.set(quizId, {
+        quizId,
+        quizTitle,
+        totalWrongAnswers: 0,
+        wrongAnswers: []
+      });
+    }
+    
+    const quizStats = quizWrongAnswers.get(quizId);
+    quizStats.totalWrongAnswers += wrongAnswers.length;
+    quizStats.wrongAnswers.push(...wrongAnswers.map((wa: any) => ({
+      ...wa,
+      studentName: response.student?.name || "Unknown Student"
+    })));
+  });
+  
+  return {
+    totalWrongAnswers,
+    mostCommonWrongAnswers: Array.from(wrongAnswerMap.values())
+      .sort((a, b) => b.totalWrong - a.totalWrong)
+      .slice(0, 10),
+    studentWrongAnswers: Array.from(studentWrongAnswers.values())
+      .sort((a, b) => b.totalWrongAnswers - a.totalWrongAnswers),
+    quizWrongAnswers: Array.from(quizWrongAnswers.values())
+      .sort((a, b) => b.totalWrongAnswers - a.totalWrongAnswers)
   };
 }

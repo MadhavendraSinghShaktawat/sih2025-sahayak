@@ -553,6 +553,44 @@ export default function TeacherDashboard({ teacherId, teacherName, onCreateRoom,
                   ))}
                 </div>
               </div>
+
+              {/* Wrong Answer Analytics */}
+              {analytics.wrongAnswerStats && analytics.wrongAnswerStats.totalWrongAnswers > 0 && (
+                <div>
+                  <h3 className="text-lg font-semibold mb-4">Common Wrong Answers</h3>
+                  <div className="space-y-3">
+                    {analytics.wrongAnswerStats.mostCommonWrongAnswers.slice(0, 5).map((wrongAnswer, index) => (
+                      <div key={`${wrongAnswer.quizId}-${wrongAnswer.questionId}`} className="p-4 border border-red-200 rounded-lg bg-red-50">
+                        <div className="flex items-start gap-3">
+                          <div className="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center text-sm font-bold text-red-600">
+                            {index + 1}
+                          </div>
+                          <div className="flex-1">
+                            <div className="font-medium text-red-800">{wrongAnswer.questionText}</div>
+                            <div className="text-sm text-red-600 mt-1">{wrongAnswer.quizTitle}</div>
+                            <div className="text-sm text-red-500 mt-2">
+                              Wrong {wrongAnswer.totalWrong} times
+                            </div>
+                            <div className="mt-2 space-y-1">
+                              {wrongAnswer.wrongAnswers.slice(0, 3).map((wa, idx) => (
+                                <div key={idx} className="text-xs text-red-600">
+                                  <span className="font-medium">{wa.studentName}:</span> "{wa.studentAnswer}" 
+                                  <span className="text-red-500 ml-1">(Correct: "{wa.correctAnswer}")</span>
+                                </div>
+                              ))}
+                              {wrongAnswer.wrongAnswers.length > 3 && (
+                                <div className="text-xs text-red-500">
+                                  +{wrongAnswer.wrongAnswers.length - 3} more...
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           ) : (
             <div className="flex items-center justify-center py-8">

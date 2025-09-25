@@ -1,6 +1,49 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabaseClient';
 
+interface WrongAnswerStats {
+  totalWrongAnswers: number;
+  mostCommonWrongAnswers: Array<{
+    questionId: string;
+    questionText: string;
+    quizId: string;
+    quizTitle: string;
+    totalWrong: number;
+    wrongAnswers: Array<{
+      studentAnswer: string | number;
+      correctAnswer: string | number;
+      studentName: string;
+      timestamp: number;
+    }>;
+  }>;
+  studentWrongAnswers: Array<{
+    studentId: string;
+    studentName: string;
+    totalWrongAnswers: number;
+    wrongAnswers: Array<{
+      questionId: string;
+      questionText: string;
+      studentAnswer: string | number;
+      correctAnswer: string | number;
+      timestamp: number;
+      quizTitle: string;
+    }>;
+  }>;
+  quizWrongAnswers: Array<{
+    quizId: string;
+    quizTitle: string;
+    totalWrongAnswers: number;
+    wrongAnswers: Array<{
+      questionId: string;
+      questionText: string;
+      studentAnswer: string | number;
+      correctAnswer: string | number;
+      timestamp: number;
+      studentName: string;
+    }>;
+  }>;
+}
+
 interface QuizAnalytics {
   totalResponses: number;
   averageScore: number;
@@ -31,6 +74,7 @@ interface QuizAnalytics {
     completedAt: string;
     roomName: string;
   }>;
+  wrongAnswerStats?: WrongAnswerStats;
 }
 
 interface QuizAnalyticsData {

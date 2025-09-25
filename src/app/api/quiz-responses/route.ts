@@ -13,7 +13,8 @@ export async function POST(request: NextRequest) {
       answers, 
       score, 
       totalQuestions, 
-      timeTaken 
+      timeTaken,
+      wrongAnswers 
     } = body;
 
     if (!quizId || !roomId || !answers || score === undefined || totalQuestions === undefined || timeTaken === undefined) {
@@ -72,6 +73,7 @@ export async function POST(request: NextRequest) {
         score: score,
         total_questions: totalQuestions,
         time_taken: timeTaken,
+        wrong_answers: wrongAnswers || [],
       })
       .select()
       .single();

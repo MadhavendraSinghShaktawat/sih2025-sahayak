@@ -97,6 +97,21 @@ export function QuizDisplay({ quiz, roomId, onComplete }: QuizDisplayProps) {
   
   // Auto-hide timer for correct answers
   const autoHideTimerRef = React.useRef<NodeJS.Timeout | null>(null);
+  
+  // Wrong answers tracking
+  const [wrongAnswers, setWrongAnswers] = React.useState<Array<{
+    questionId: string;
+    questionText: string;
+    studentAnswer: string | number;
+    correctAnswer: string | number;
+    timestamp: number;
+  }>>([]);
+
+  // First-attempt tracking (used for scoring and analytics)
+  const [firstAttemptAnswers, setFirstAttemptAnswers] = React.useState<Record<string, {
+    answer: string | number;
+    isCorrect: boolean;
+  }>>({});
 
   // Debug logging
   console.log("QuizDisplay received quiz:", quiz);
@@ -143,6 +158,24 @@ export function QuizDisplay({ quiz, roomId, onComplete }: QuizDisplayProps) {
     // Check if answer is correct
     const isCorrect = String(value) === String(current.correctAnswer);
     
+    // Record first attempt only (for scoring and analytics)
+    if (!firstAttemptAnswers[current.id]) {
+      const firstAttempt = { answer: value, isCorrect };
+      setFirstAttemptAnswers(prev => ({ ...prev, [current.id]: firstAttempt }));
+
+      // Track only the first wrong answer per question
+      if (!isCorrect) {
+        const wrongAnswer = {
+          questionId: current.id,
+          questionText: current.question,
+          studentAnswer: value,
+          correctAnswer: current.correctAnswer,
+          timestamp: Date.now()
+        };
+        setWrongAnswers(prev => [...prev, wrongAnswer]);
+      }
+    }
+    
     // Get feedback message
     let explanation = "";
     if (current.feedback) {
@@ -180,7 +213,7 @@ export function QuizDisplay({ quiz, roomId, onComplete }: QuizDisplayProps) {
     const total = quiz.questions.length;
     let score = 0;
     for (const q of quiz.questions) {
-      if (String(answers[q.id]) === String(q.correctAnswer)) score += 1;
+      if (firstAttemptAnswers[q.id]?.isCorrect) score += 1;
     }
     
     const timeTaken = Math.floor((Date.now() - startTime) / 1000); // in seconds
@@ -206,6 +239,7 @@ export function QuizDisplay({ quiz, roomId, onComplete }: QuizDisplayProps) {
               score: score,
               totalQuestions: total,
               timeTaken: timeTaken,
+              wrongAnswers: wrongAnswers,
             }),
           });
           
