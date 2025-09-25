@@ -67,13 +67,15 @@ Phase 9: Gamification (Selected)
   - [ ] Analytics hook: expose per-room streak distribution
 
 - Skill Tree (UI-first; course-linked later)
-  - [ ] Build skill tree UI with React Flow (no backend dependency yet)
-  - [ ] Root choice nodes (3): Digital Literacy / Financial Literacy / Mental Health
+  - [x] Build skill tree UI with React Flow (no backend dependency yet)
+  - [x] Root choice nodes (3): Digital Literacy / Financial Literacy / Mental Health
   - [ ] JSON config for branches: ordered nodes with metadata `{ id, label, icon, action }`
   - [ ] Unlock rule: a node unlocks ONLY after completing its action (see actions below)
   - [ ] Actions registry (for demo): `acknowledge` (confirm), `view` (open info modal for N sec)
   - [ ] Persist visual progress locally (client state) now; plan server persistence later
   - [ ] Future link: attach nodes to courses/modules when course system lands
+  - [x] Canvas sizing and UX: full-height, overflow hidden, draggable/zoomable when needed
+  - [x] Visual locks on all non-start nodes; start node highlighted
 
 Notes (data & endpoints)
 - [ ] Add `answer_timings(response_id, question_id, ms_to_answer)` for optional time-based streak tie-breakers

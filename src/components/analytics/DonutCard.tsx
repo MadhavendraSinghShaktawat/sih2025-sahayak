@@ -45,7 +45,7 @@ export default function DonutCard({ title, correctPct, className }: DonutCardPro
           top: "center",
           style: {
             text: `${correctPct}%`,
-            textAlign: "center",
+            align: "center",
             fill: "#111827",
             fontSize: 18,
             fontWeight: 600,
