@@ -9,6 +9,7 @@ import { QuizDisplay } from "@/components/QuizDisplay";
 import { useQuizzes } from "@/hooks/useQuizzes";
 import RoleLayout from "@/components/blocks/RoleLayout";
 import TeacherDashboard from "@/components/dashboard/TeacherDashboard";
+import Loading from "@/components/common/loading";
 
 export default function TeacherPage() {
   const router = useRouter();
@@ -163,18 +164,18 @@ export default function TeacherPage() {
 
   const handleSidebarAction = (action: string, data?: any) => {
     switch (action) {
-      case 'createRoom':
+      case "createRoom":
         onCreateRoom({ preventDefault: () => {} } as React.FormEvent);
         break;
-      case 'inviteStudents':
+      case "inviteStudents":
         onInviteStudent({ preventDefault: () => {} } as React.FormEvent);
         break;
-      case 'generateQuiz':
+      case "generateQuiz":
         // Handle quiz generation
-        console.log('Generate quiz action');
+        console.log("Generate quiz action");
         break;
       default:
-        console.log('Sidebar action:', action, data);
+        console.log("Sidebar action:", action, data);
     }
   };
 
@@ -182,7 +183,7 @@ export default function TeacherPage() {
     <RoleLayout role="teacher" onAction={handleSidebarAction}>
       {loading ? (
         <div className="flex items-center justify-center min-h-screen w-full">
-          <div className="text-lg">Loading...</div>
+          <Loading />
         </div>
       ) : (
         <>
@@ -191,10 +192,12 @@ export default function TeacherPage() {
               {toast}
             </div>
           )}
-          <TeacherDashboard 
+          <TeacherDashboard
             teacherId={user?.id}
             teacherName={name || undefined}
-            onCreateRoom={() => onCreateRoom({ preventDefault: () => {} } as React.FormEvent)}
+            onCreateRoom={() =>
+              onCreateRoom({ preventDefault: () => {} } as React.FormEvent)
+            }
             onInviteStudent={(email) => {
               // set email state and reuse handler
               // lightweight path without exposing internal state elsewhere
@@ -207,15 +210,17 @@ export default function TeacherPage() {
             }}
             onGenerateQuiz={() => {
               // surface sidebar action hook
-              console.log('Generate quiz from dashboard');
+              console.log("Generate quiz from dashboard");
               // Here you could open your existing QuizGenerationModal via sidebar action
             }}
             currentRoom={roomId ? { id: roomId, passcode, qr } : null}
             onEndSession={onEndSession}
             onGoToRoom={() => {
               if (!roomId) return;
-              const displayName = name || 'Teacher';
-              router.push(`/room/${roomId}?as=teacher&name=${encodeURIComponent(displayName)}`);
+              const displayName = name || "Teacher";
+              router.push(
+                `/room/${roomId}?as=teacher&name=${encodeURIComponent(displayName)}`
+              );
             }}
           />
         </>

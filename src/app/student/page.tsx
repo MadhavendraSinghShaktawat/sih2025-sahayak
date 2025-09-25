@@ -16,6 +16,7 @@ import {
   Calendar,
   Award,
 } from "lucide-react";
+import Loading from "@/components/common/loading";
 
 export default function StudentPage() {
   const router = useRouter();
@@ -24,7 +25,9 @@ export default function StudentPage() {
   const [toast, setToast] = React.useState<string | null>(null);
   const [loading, setLoading] = React.useState(true);
   const [user, setUser] = React.useState<any>(null);
-  const [view, setView] = React.useState<"dashboard" | "skill-tree">("dashboard");
+  const [view, setView] = React.useState<"dashboard" | "skill-tree">(
+    "dashboard"
+  );
 
   // Check authentication on mount
   React.useEffect(() => {
@@ -144,19 +147,19 @@ export default function StudentPage() {
 
   const handleSidebarAction = (action: string, data?: any) => {
     switch (action) {
-      case 'joinRoom':
+      case "joinRoom":
         // Handle room joining
-        console.log('Join room action');
+        console.log("Join room action");
         break;
-      case 'viewQuizzes':
+      case "viewQuizzes":
         // Handle quiz viewing
-        console.log('View quizzes action');
+        console.log("View quizzes action");
         break;
-      case 'viewSkillTree':
-        setView('skill-tree');
+      case "viewSkillTree":
+        setView("skill-tree");
         break;
       default:
-        console.log('Sidebar action:', action, data);
+        console.log("Sidebar action:", action, data);
     }
   };
 
@@ -164,7 +167,7 @@ export default function StudentPage() {
     <RoleLayout role="student" onAction={handleSidebarAction}>
       {loading ? (
         <div className="flex items-center justify-center min-h-screen w-full">
-          <div className="text-lg">Loading...</div>
+          <Loading />
         </div>
       ) : (
         <>
@@ -173,13 +176,18 @@ export default function StudentPage() {
               {toast}
             </div>
           )}
-          {view === 'dashboard' ? (
+          {view === "dashboard" ? (
             <StudentDashboard onJoinRoom={(code) => handleComplete(code)} />
           ) : (
             <div className="max-w-7xl mx-auto space-y-4">
               <div className="flex items-center justify-between">
                 <h1 className="text-2xl font-semibold">Skill Tree</h1>
-                <button className="px-3 py-1 rounded-md border" onClick={() => setView('dashboard')}>Back</button>
+                <button
+                  className="px-3 py-1 rounded-md border"
+                  onClick={() => setView("dashboard")}
+                >
+                  Back
+                </button>
               </div>
               <SkillTree />
             </div>
