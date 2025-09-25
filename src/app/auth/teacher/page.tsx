@@ -2,7 +2,9 @@
 
 import * as React from "react";
 import { createClient } from "@supabase/supabase-js";
-import MovingBorderButton from "@/components/blocks/moving-border-button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
 import Link from "next/link";
 
 const supabase = createClient(
@@ -76,54 +78,85 @@ export default function TeacherSignIn() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-white to-blue-50 p-6">
-      <div className="w-full max-w-md rounded-2xl border bg-white shadow-sm p-8">
-        <h1 className="text-xl font-semibold mb-4">Teacher Sign In</h1>
-        <form className="space-y-4" onSubmit={onSubmit}>
-          <div className="space-y-2">
-            <label className="text-sm">Email</label>
-            <input
-              className="w-full border rounded-md px-3 py-2"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-b p-6">
+      <div className="w-full max-w-md rounded-2xl border shadow-sm p-8">
+        <form onSubmit={onSubmit} className="flex flex-col gap-6">
+          <div className="flex flex-col items-center gap-2 text-center">
+            <h1 className="text-2xl font-bold">Teacher Sign In</h1>
+            <p className="text-muted-foreground text-sm text-balance">
+              Enter your credentials to access your teacher dashboard
+            </p>
           </div>
-          <div className="space-y-2">
-            <label className="text-sm">Password</label>
-            <input
-              className="w-full border rounded-md px-3 py-2"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
+
+          <div className="grid gap-6">
+            <div className="grid gap-3">
+              <Label htmlFor="email">Email</Label>
+              <Input
+                id="email"
+                type="email"
+                placeholder="teacher@example.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
+            </div>
+
+            <div className="grid gap-3">
+              <div className="flex items-center">
+                <Label htmlFor="password">Password</Label>
+                <a
+                  href="#"
+                  className="ml-auto text-sm underline-offset-4 hover:underline"
+                >
+                  Forgot your password?
+                </a>
+              </div>
+              <Input
+                id="password"
+                type="password"
+                placeholder="••••••••"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+            </div>
+
+            {error && <p className="text-sm text-red-600">{error}</p>}
+            {info && <p className="text-sm text-green-600">{info}</p>}
+
+            <Button type="submit" className="w-full">
+              {loading ? "Please wait..." : "Continue"}
+            </Button>
+
+            {needsVerify && (
+              <div className="mt-2 text-center">
+                <button
+                  type="button"
+                  onClick={resendVerification}
+                  className="text-xs underline underline-offset-4 hover:text-blue-600"
+                >
+                  Resend verification email
+                </button>
+              </div>
+            )}
           </div>
-          {error && <p className="text-sm text-red-600">{error}</p>}
-          {info && <p className="text-sm text-green-600">{info}</p>}
-          <MovingBorderButton type="submit">
-            {loading ? "Please wait..." : "Continue"}
-          </MovingBorderButton>
-        </form>
-        {needsVerify && (
-          <div className="mt-3">
-            <button onClick={resendVerification} className="text-xs underline">
-              Resend verification email
-            </button>
-          </div>
-        )}
-        <div className="text-xs text-gray-500 mt-4 flex items-center justify-between">
-          <span>
+
+          <div className="text-center text-sm text-gray-600 mt-2">
             Invites are required for student accounts.{" "}
-            <Link href="/auth/student" className="underline">
+            <Link href="/auth/student" className="underline underline-offset-4">
               Sign in as student
             </Link>
-          </span>
-          <Link href="/auth/teacher/signup" className="underline">
-            Create teacher account
-          </Link>
-        </div>
+          </div>
+          <div className="text-center text-sm">
+            Don’t have a teacher account?{" "}
+            <Link
+              href="/auth/teacher/signup"
+              className="underline underline-offset-4"
+            >
+              Create teacher account
+            </Link>
+          </div>
+        </form>
       </div>
     </div>
   );

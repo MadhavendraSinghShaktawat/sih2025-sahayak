@@ -10,7 +10,7 @@ export default function Sahayak() {
     <div className="relative min-h-screen bg-white">
       <div className="fixed top-4 right-4 z-50 flex items-center gap-3">
         <LanguageSwitcher />
-        <Link href="/auth/teacher" className="inline-block">
+        <Link href="/auth/student" className="inline-block">
           <MovingBorderButton>Login</MovingBorderButton>
         </Link>
       </div>
