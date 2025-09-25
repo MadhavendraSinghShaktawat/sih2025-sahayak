@@ -24,6 +24,9 @@
 .DS_Store
 *.pem
 
+# local third-party repos
+llama.cpp/
+
 # debug
 npm-debug.log*
 yarn-debug.log*

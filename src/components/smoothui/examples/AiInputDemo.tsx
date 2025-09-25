@@ -216,7 +216,7 @@ const AiInputDemo = React.forwardRef<AiInputDemoRef, { roomId?: string }>(({ roo
   };
 
   return (
-    <div className="relative">
+      <div className="relative">
       <MorphSurface
         onInputChange={handleInputChange}
         onKeyDown={handleKeyDown}
@@ -277,7 +277,7 @@ const AiInputDemo = React.forwardRef<AiInputDemoRef, { roomId?: string }>(({ roo
               </button>
             </div>
           </div>
-        </div>
+      </div>
       )}
     </div>
   );

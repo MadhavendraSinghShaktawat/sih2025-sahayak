@@ -7,6 +7,7 @@ import RoomPassInput from "@/components/smoothui/ui/RoomPassInput";
 import { retry } from "@/lib/retry";
 import RoleLayout from "@/components/blocks/RoleLayout";
 import StudentDashboard from "@/components/dashboard/StudentDashboard";
+import SkillTree from "@/components/gamification/SkillTree";
 import {
   BookOpen,
   Users,
@@ -23,6 +24,7 @@ export default function StudentPage() {
   const [toast, setToast] = React.useState<string | null>(null);
   const [loading, setLoading] = React.useState(true);
   const [user, setUser] = React.useState<any>(null);
+  const [view, setView] = React.useState<"dashboard" | "skill-tree">("dashboard");
 
   // Check authentication on mount
   React.useEffect(() => {
@@ -150,6 +152,9 @@ export default function StudentPage() {
         // Handle quiz viewing
         console.log('View quizzes action');
         break;
+      case 'viewSkillTree':
+        setView('skill-tree');
+        break;
       default:
         console.log('Sidebar action:', action, data);
     }
@@ -168,7 +173,17 @@ export default function StudentPage() {
               {toast}
             </div>
           )}
-          <StudentDashboard onJoinRoom={(code) => handleComplete(code)} />
+          {view === 'dashboard' ? (
+            <StudentDashboard onJoinRoom={(code) => handleComplete(code)} />
+          ) : (
+            <div className="max-w-7xl mx-auto space-y-4">
+              <div className="flex items-center justify-between">
+                <h1 className="text-2xl font-semibold">Skill Tree</h1>
+                <button className="px-3 py-1 rounded-md border" onClick={() => setView('dashboard')}>Back</button>
+              </div>
+              <SkillTree />
+            </div>
+          )}
         </>
       )}
     </RoleLayout>

@@ -70,6 +70,13 @@
             "action": "viewAchievements"
           },
           {
+            "id": "skill-tree",
+            "label": "Skill Tree",
+            "description": "Grow your skills and unlock paths",
+            "icon": "GitBranch",
+            "action": "viewSkillTree"
+          },
+          {
             "id": "learning-stats",
             "label": "Learning Stats",
             "description": "Track your study time and progress",

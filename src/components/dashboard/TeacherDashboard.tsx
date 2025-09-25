@@ -29,6 +29,10 @@ import LanguageSwitcher from '@/components/common/language-switcher';
 import { useQuizAnalytics } from '@/hooks/useQuizAnalytics';
 import OptionsHeatmap from '@/components/analytics/OptionsHeatmap';
 import MiniTrend from '@/components/analytics/MiniTrend';
+import DonutCard from '@/components/analytics/DonutCard';
+import MiniGrid from '@/components/analytics/MiniGrid';
+import AxisBreakBar from '@/components/analytics/AxisBreakBar';
+import PolarStackBar from '@/components/analytics/PolarStackBar';
 
 type TeacherDashboardProps = {
   teacherId: string;
@@ -494,6 +498,21 @@ export default function TeacherDashboard({ teacherId, teacherName, onCreateRoom,
                 <h3 className="text-lg font-semibold mb-4">Option Selection Heatmap</h3>
                 <OptionsHeatmap teacherId={teacherId} />
               </div>
+
+              {/* Jury-friendly visuals (static samples) */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <DonutCard title="Correct Rate" correctPct={Math.round((analytics.averageScore || 0))} />
+                <DonutCard title="Completion Rate" correctPct={100} />
+                <DonutCard title="On-time Submissions" correctPct={92} />
+              </div>
+
+              {/* Showcase charts (not tied to quiz heatmap) */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <AxisBreakBar />
+                <PolarStackBar />
+              </div>
+
+              <MiniGrid />
               {/* Top Performing Quizzes */}
               <div>
                 <h3 className="text-lg font-semibold mb-4">Top Performing Quizzes</h3>
