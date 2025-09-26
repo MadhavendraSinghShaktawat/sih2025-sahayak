@@ -3,6 +3,7 @@
 import { useState, useCallback } from "react";
 import { QuizOptions } from "@/lib/llm/types";
 import { useOfflineQuizGeneration } from "./useOfflineQuizGeneration";
+import { supabase } from "@/lib/supabaseClient";
 
 export interface QuizGenerationRequest {
   content: string;
@@ -49,6 +50,15 @@ export function useQuizGeneration(): UseQuizGenerationReturn {
       try {
         // First try server-side generation (online)
         try {
+          // Get the current session token
+          const {
+            data: { session },
+          } = await supabase.auth.getSession();
+
+          if (!session?.access_token) {
+            throw new Error("User not authenticated");
+          }
+
           const request: QuizGenerationRequest = {
             content,
             contentType,
@@ -67,7 +77,7 @@ export function useQuizGeneration(): UseQuizGenerationReturn {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
-              "Authorization": `Bearer ${localStorage.getItem("supabase.auth.token")}`,
+              "Authorization": `Bearer ${session.access_token}`,
             },
             body: JSON.stringify(request),
           });
