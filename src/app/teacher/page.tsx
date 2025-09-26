@@ -10,6 +10,7 @@ import { useQuizzes } from "@/hooks/useQuizzes";
 import RoleLayout from "@/components/blocks/RoleLayout";
 import TeacherDashboard from "@/components/dashboard/TeacherDashboard";
 import Loading from "@/components/common/loading";
+import NetworkStatusExample from "@/components/examples/NetworkStatusExample";
 
 export default function TeacherPage() {
   const router = useRouter();

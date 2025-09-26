@@ -1,10 +1,23 @@
+"use client";
+
 import { useState, useCallback } from "react";
-import { llmService } from "@/lib/llm/service";
-import {
-  QuizGenerationRequest,
-  QuizGenerationResponse,
-  QuizOptions,
-} from "@/lib/llm/types";
+import { QuizOptions } from "@/lib/llm/types";
+import { useOfflineQuizGeneration } from "./useOfflineQuizGeneration";
+
+export interface QuizGenerationRequest {
+  content: string;
+  contentType: "text" | "pdf" | "image";
+  options: QuizOptions;
+}
+
+export interface QuizGenerationResponse {
+  success: boolean;
+  quiz?: any;
+  provider?: string;
+  processingTime?: number;
+  stored?: boolean;
+  error?: string;
+}
 
 export interface UseQuizGenerationReturn {
   generateQuiz: (
@@ -22,6 +35,7 @@ export function useQuizGeneration(): UseQuizGenerationReturn {
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [lastQuiz, setLastQuiz] = useState<QuizGenerationResponse | null>(null);
+  const { generateQuizOffline, isGenerating: isOfflineGenerating } = useOfflineQuizGeneration();
 
   const generateQuiz = useCallback(
     async (
@@ -33,28 +47,63 @@ export function useQuizGeneration(): UseQuizGenerationReturn {
       setError(null);
 
       try {
-        const request: QuizGenerationRequest = {
-          content,
-          contentType,
-          options: {
-            subject: options.subject || "General",
-            class: options.class || "Any",
-            language: options.language || "English",
-            difficulty: options.difficulty || "medium",
-            type: options.type || "mcq",
-            questionCount: options.questionCount || 5,
-            ...options,
-          },
-        };
+        // First try server-side generation (online)
+        try {
+          const request: QuizGenerationRequest = {
+            content,
+            contentType,
+            options: {
+              subject: options.subject || "General",
+              class: options.class || "Any",
+              language: options.language || "English",
+              difficulty: options.difficulty || "medium",
+              type: options.type || "mcq",
+              questionCount: options.questionCount || 5,
+              ...options,
+            },
+          };
 
-        const response = await llmService.generateQuiz(request);
-        setLastQuiz(response);
+          const response = await fetch("/api/generate-quiz", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": `Bearer ${localStorage.getItem("supabase.auth.token")}`,
+            },
+            body: JSON.stringify(request),
+          });
 
-        if (!response.success) {
-          setError(response.error || "Quiz generation failed");
+          const data = await response.json();
+          setLastQuiz(data);
+
+          if (!data.success) {
+            setError(data.error || "Quiz generation failed");
+          }
+
+          return data;
+        } catch (serverError) {
+          console.log("Server-side generation failed, trying local Ollama:", serverError);
+          
+          // If server fails, try local Ollama generation
+          const offlineResponse = await generateQuizOffline({
+            content,
+            contentType,
+            options: {
+              subject: options.subject || "General",
+              class: options.class || "Any",
+              language: options.language || "English",
+              difficulty: options.difficulty || "medium",
+              type: options.type || "mcq",
+              questionCount: options.questionCount || 5,
+              ...options,
+            },
+          });
+          
+          setLastQuiz(offlineResponse);
+          if (!offlineResponse.success) {
+            setError(offlineResponse.error || "Both online and offline generation failed");
+          }
+          return offlineResponse;
         }
-
-        return response;
       } catch (err) {
         const errorMessage =
           err instanceof Error ? err.message : "Unknown error occurred";
@@ -72,16 +121,14 @@ export function useQuizGeneration(): UseQuizGenerationReturn {
         setIsGenerating(false);
       }
     },
-    []
+    [generateQuizOffline]
   );
-
-  const availableProviders = llmService.getAvailableProviders();
 
   return {
     generateQuiz,
-    isGenerating,
+    isGenerating: isGenerating || isOfflineGenerating,
     error,
     lastQuiz,
-    availableProviders,
+    availableProviders: ["gemini", "ollama"], // Static list for now
   };
 }

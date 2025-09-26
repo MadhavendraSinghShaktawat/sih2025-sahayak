@@ -27,6 +27,7 @@
     "@shikijs/transformers": "^3.13.0",
     "@splinetool/react-spline": "^4.1.0",
     "@supabase/supabase-js": "^2.45.4",
+    "@uidotdev/usehooks": "^2.4.1",
     "ai": "^5.0.49",
     "bootstrap": "^5.3.8",
     "class-variance-authority": "^0.7.1",
