@@ -5,9 +5,86 @@ export interface LLMProvider {
 }
 
 export interface LLMConfig {
+  openaiApiKey?: string;
+  openaiModel?: string;
   geminiApiKey?: string;
   ollamaUrl?: string;
   ollamaModel?: string;
+}
+
+/**
+ * OpenAI Chat Completions (JSON mode). Used when OPENAI_API_KEY is set.
+ */
+export class OpenAIProvider implements LLMProvider {
+  name = "openai";
+  private readonly apiKey: string;
+  private readonly model: string;
+
+  constructor(apiKey: string, model: string) {
+    this.apiKey = apiKey;
+    this.model = model;
+  }
+
+  async generateContent(prompt: string): Promise<string> {
+    const response = await fetch(
+      "https://api.openai.com/v1/chat/completions",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${this.apiKey}`,
+        },
+        body: JSON.stringify({
+          model: this.model,
+          messages: [
+            {
+              role: "system",
+              content:
+                "You are an educational quiz generator. Follow the user instructions and return only valid JSON when JSON is requested.",
+            },
+            { role: "user", content: prompt },
+          ],
+          temperature: 0.7,
+          max_tokens: 4096,
+          response_format: { type: "json_object" },
+        }),
+      }
+    );
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(
+        `OpenAI API error: ${response.status} ${response.statusText} - ${errorText}`
+      );
+    }
+
+    const data = (await response.json()) as {
+      choices?: Array<{ message?: { content?: string } }>;
+    };
+    const text = data.choices?.[0]?.message?.content;
+    if (!text) {
+      throw new Error("OpenAI returned empty content");
+    }
+    return text;
+  }
+
+  async isAvailable(): Promise<boolean> {
+    if (!this.apiKey) {
+      return false;
+    }
+    try {
+      const response = await fetch(
+        "https://api.openai.com/v1/models?limit=1",
+        {
+          method: "GET",
+          headers: { Authorization: `Bearer ${this.apiKey}` },
+        }
+      );
+      return response.ok;
+    } catch {
+      return false;
+    }
+  }
 }
 
 export class GeminiProvider implements LLMProvider {
@@ -191,12 +268,21 @@ export class LLMService {
     this.fallbackOrder = [];
 
     console.log("Initializing LLM Service with config:", {
+      hasOpenAIKey: !!config.openaiApiKey,
+      openaiModel: config.openaiModel,
       hasGeminiKey: !!config.geminiApiKey,
       ollamaUrl: config.ollamaUrl,
       ollamaModel: config.ollamaModel,
     });
 
-    // Add Gemini provider if API key is available
+    if (config.openaiApiKey) {
+      const model = config.openaiModel || "gpt-3.5-turbo";
+      const openaiProvider = new OpenAIProvider(config.openaiApiKey, model);
+      this.providers.push(openaiProvider);
+      this.fallbackOrder.push("openai");
+      console.log("Added OpenAI provider:", model);
+    }
+
     if (config.geminiApiKey) {
       const geminiProvider = new GeminiProvider(config.geminiApiKey);
       this.providers.push(geminiProvider);
@@ -204,7 +290,6 @@ export class LLMService {
       console.log("Added Gemini provider");
     }
 
-    // Add Ollama provider if URL and model are available
     if (config.ollamaUrl && config.ollamaModel) {
       const ollamaProvider = new OllamaProvider(config.ollamaUrl, config.ollamaModel);
       this.providers.push(ollamaProvider);
@@ -268,6 +353,8 @@ export class LLMService {
 // Factory function to create LLM service with environment variables
 export function createLLMService(): LLMService {
   const config: LLMConfig = {
+    openaiApiKey: process.env.OPENAI_API_KEY,
+    openaiModel: process.env.OPENAI_MODEL || "gpt-3.5-turbo",
     geminiApiKey: process.env.GEMINI_API_KEY,
     ollamaUrl: process.env.OLLAMA_URL || "http://localhost:11434",
     ollamaModel: process.env.OLLAMA_MODEL || "tinyllama",

@@ -41,7 +41,6 @@ export async function POST(request: NextRequest) {
 
     const { content, contentType, options } = await request.json();
 
-    // Initialize LLM service
     const llmService = createLLMService();
 
     // Build the prompt
@@ -93,7 +92,7 @@ Please generate a quiz in the following JSON format with detailed explanations:
     "difficulty": "${options.difficulty || "medium"}",
     "estimatedTime": 10,
     "createdAt": "${new Date().toISOString()}",
-    "generatedBy": "gemini"
+    "generatedBy": "openai"
   }
 }
 
@@ -144,7 +143,7 @@ EXAMPLE FORMAT:
 }
 `;
 
-    // Call LLM service (Gemini when online, Ollama when offline)
+    // Call LLM service (OpenAI preferred, then Gemini if configured, then Ollama)
     const startTime = Date.now();
     const { content: responseText, provider } = await llmService.generateContent(prompt);
     const processingTime = Date.now() - startTime;
@@ -278,7 +277,7 @@ EXAMPLE FORMAT:
             difficulty: storedQuiz.difficulty,
             estimatedTime: storedQuiz.metadata?.estimatedTime || 10,
             createdAt: storedQuiz.created_at,
-            generatedBy: storedQuiz.metadata?.generatedBy || "gemini",
+            generatedBy: storedQuiz.metadata?.generatedBy || provider,
           },
         }
       : quiz;

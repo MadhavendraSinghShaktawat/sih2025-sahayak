@@ -2,21 +2,16 @@ import {
   LLMProvider,
   QuizGenerationRequest,
   QuizGenerationResponse,
-  Quiz,
-  Question,
-  QuizMetadata,
 } from "../types";
 import { supabase } from "../../supabaseClient";
 
-export class GeminiProvider implements LLMProvider {
-  name = "gemini";
-
-  constructor() {
-    // No need for API key on client side - handled by server
-  }
+/**
+ * Calls the server `/api/generate-quiz` route (OpenAI, Gemini, or Ollama on the server).
+ */
+export class QuizApiProvider implements LLMProvider {
+  name = "openai";
 
   isAvailable(): boolean {
-    // Always available since we use server-side API route
     return true;
   }
 
@@ -24,17 +19,13 @@ export class GeminiProvider implements LLMProvider {
     request: QuizGenerationRequest
   ): Promise<QuizGenerationResponse> {
     const startTime = Date.now();
-
     try {
-      // Get the current session token
       const {
         data: { session },
       } = await supabase.auth.getSession();
-
       if (!session?.access_token) {
         throw new Error("User not authenticated");
       }
-
       const response = await fetch("/api/generate-quiz", {
         method: "POST",
         headers: {
@@ -43,19 +34,19 @@ export class GeminiProvider implements LLMProvider {
         },
         body: JSON.stringify(request),
       });
-
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.error || `Server error: ${response.status}`);
       }
-
-      const data = await response.json();
-
+      const data = (await response.json()) as QuizGenerationResponse & {
+        provider?: string;
+      };
       return {
-        success: data.success,
+        success: Boolean(data.success),
         quiz: data.quiz,
         error: data.error,
-        provider: this.name,
+        provider:
+          typeof data.provider === "string" ? data.provider : this.name,
         processingTime: Date.now() - startTime,
       };
     } catch (error) {

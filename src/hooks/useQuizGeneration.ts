@@ -139,6 +139,6 @@ export function useQuizGeneration(): UseQuizGenerationReturn {
     isGenerating: isGenerating || isOfflineGenerating,
     error,
     lastQuiz,
-    availableProviders: ["gemini", "ollama"], // Static list for now
+    availableProviders: ["openai", "ollama"],
   };
 }

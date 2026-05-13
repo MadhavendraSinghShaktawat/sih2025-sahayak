@@ -135,42 +135,57 @@ export default function TeacherPage() {
     }
   }
 
-  async function onInviteStudent(e: React.FormEvent) {
-    e.preventDefault();
+  async function inviteStudentEmail(rawEmail: string): Promise<void> {
+    const email = rawEmail.trim().toLowerCase();
+    if (!email) {
+      setToast("Please enter an email address");
+      setTimeout(() => setToast(null), 2500);
+      return;
+    }
     if (!user) {
       setToast("Please sign in first");
       return;
     }
     setInviting(true);
     try {
-      // Whitelist the email for signup via invited_emails
       const { error } = await supabase
         .from("invited_emails")
         .upsert(
-          { email: inviteEmail.trim().toLowerCase(), teacher_id: user.id },
+          { email, teacher_id: user.id },
           { onConflict: "email" }
         );
-
       if (error) throw error;
       setToast("Student email whitelisted");
-      setInviteEmail(""); // Clear the input
-    } catch (err: any) {
+      setInviteEmail("");
+    } catch (err: unknown) {
       console.error("invite_failed", err);
-      setToast(err?.message ?? "Failed to invite student");
+      const message =
+        err instanceof Error ? err.message : "Failed to invite student";
+      setToast(message);
     } finally {
       setInviting(false);
       setTimeout(() => setToast(null), 3000);
     }
   }
 
-  const handleSidebarAction = (action: string, data?: any) => {
+  async function onInviteStudent(e: React.FormEvent) {
+    e.preventDefault();
+    await inviteStudentEmail(inviteEmail);
+  }
+
+  const handleSidebarAction = (action: string, data?: unknown) => {
     switch (action) {
       case "createRoom":
         onCreateRoom({ preventDefault: () => {} } as React.FormEvent);
         break;
-      case "inviteStudents":
-        onInviteStudent({ preventDefault: () => {} } as React.FormEvent);
+      case "inviteStudents": {
+        const entered =
+          typeof window !== "undefined"
+            ? window.prompt("Enter student email to invite")
+            : null;
+        if (entered?.trim()) void inviteStudentEmail(entered);
         break;
+      }
       case "generateQuiz":
         // Handle quiz generation
         console.log("Generate quiz action");
@@ -200,14 +215,7 @@ export default function TeacherPage() {
               onCreateRoom({ preventDefault: () => {} } as React.FormEvent)
             }
             onInviteStudent={(email) => {
-              // set email state and reuse handler
-              // lightweight path without exposing internal state elsewhere
-              const evt = { preventDefault: () => {} } as React.FormEvent;
-              // temporary set, then call
-              // keep prior value to restore if needed
-              const prev = inviteEmail;
-              setInviteEmail(email);
-              onInviteStudent(evt).finally(() => setInviteEmail(prev));
+              void inviteStudentEmail(email);
             }}
             onGenerateQuiz={() => {
               // surface sidebar action hook

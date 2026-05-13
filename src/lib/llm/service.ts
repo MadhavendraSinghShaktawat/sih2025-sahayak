@@ -3,14 +3,14 @@ import {
   QuizGenerationRequest,
   QuizGenerationResponse,
 } from "./types";
-import { GeminiProvider } from "./providers/gemini";
+import { QuizApiProvider } from "./providers/quiz-api-provider";
 
 export class LLMService {
   private providers: Map<string, LLMProvider> = new Map();
-  private defaultProvider: string = "gemini";
+  private defaultProvider: string = "openai";
 
   constructor() {
-    this.registerProvider(new GeminiProvider());
+    this.registerProvider(new QuizApiProvider());
   }
 
   registerProvider(provider: LLMProvider): void {

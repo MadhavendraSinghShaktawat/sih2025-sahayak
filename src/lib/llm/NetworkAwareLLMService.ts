@@ -23,12 +23,10 @@ export class NetworkAwareLLMService {
 
   async generateContent(prompt: string): Promise<{ content: string; provider: string }> {
     if (this.isOnline) {
-      // Try Gemini first when online
       try {
         return await this.llmService.generateContent(prompt);
       } catch (error) {
         console.warn("Online provider failed, falling back to local:", error);
-        // Fall back to Ollama even when online if Gemini fails
         return await this.generateWithOllama(prompt);
       }
     } else {
